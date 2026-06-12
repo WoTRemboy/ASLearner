@@ -3,21 +3,21 @@ import SwiftUI
 struct AppTabView: View {
     var body: some View {
         TabView {
-            Tab(Texts.Tabbar.home, systemImage: "house.fill") {
-                NavigationStack {
-                    HomeView()
-                }
-            }
-
             Tab(Texts.Tabbar.path, systemImage: "graduationcap.fill") {
                 NavigationStack {
                     LearningFlowView()
                 }
             }
 
-            Tab(Texts.Tabbar.stats, systemImage: "chart.xyaxis.line") {
+            Tab(Texts.Tabbar.profile, systemImage: "person.crop.circle.fill") {
                 NavigationStack {
-                    StatisticsView()
+                    ProfileView()
+                }
+            }
+
+            Tab(Texts.Tabbar.settings, systemImage: "gearshape.fill") {
+                NavigationStack {
+                    SettingsView()
                 }
             }
 

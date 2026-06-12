@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ModuleHeaderCard: View {
     let module: LearningModule
-    let progress: Double
     var transitionID: String?
     var namespace: Namespace.ID?
     var action: (() -> Void)?
@@ -58,24 +57,33 @@ struct ModuleHeaderCard: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text(Texts.LearningFlowPage.progress)
-                        Spacer()
-                        Text("\(Int(progress * 100))%")
-                    }
-                    .font(Font.caption(.semibold))
-                    .foregroundStyle(LiquidGlassTheme.mutedForeground)
-
-                    ModuleProgressBar(value: progress)
-                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .overlay {
             ZoomTransitionSourceOverlay(id: transitionID, namespace: namespace, cornerRadius: 28)
         }
+    }
+}
+
+struct ModuleProgressDock: View {
+    let progress: Double
+
+    var body: some View {
+        LiquidGlassCard(cornerRadius: 24, padding: 14) {
+            VStack(alignment: .leading, spacing: 9) {
+                HStack {
+                    Text(Texts.LearningFlowPage.progress)
+                    Spacer()
+                    Text("\(Int(progress * 100))%")
+                }
+                .font(Font.caption(.semibold))
+                .foregroundStyle(LiquidGlassTheme.mutedForeground)
+
+                ModuleProgressBar(value: progress)
+            }
+        }
+        .padding(.horizontal, 20)
     }
 }
 

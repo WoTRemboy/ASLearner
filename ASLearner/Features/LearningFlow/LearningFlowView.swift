@@ -22,7 +22,6 @@ struct LearningFlowView: View {
                     if let module = viewModel.module {
                         ModuleHeaderCard(
                             module: module,
-                            progress: viewModel.moduleProgress,
                             transitionID: sectionsTransitionID,
                             namespace: namespace
                         ) {
@@ -48,7 +47,7 @@ struct LearningFlowView: View {
                     .padding(.horizontal, 10)
                 }
                 .padding(.top, 8)
-                .padding(.bottom, viewModel.selectedNode == nil ? 32 : 180)
+                .padding(.bottom, viewModel.selectedNode == nil ? 120 : 300)
                 .background {
                     Color.clear
                         .contentShape(Rectangle())
@@ -63,12 +62,19 @@ struct LearningFlowView: View {
         .navigationTitle(Texts.LearningFlowPage.title)
         .navigationBarTitleDisplayMode(.large)
         .safeAreaInset(edge: .bottom) {
-            if let selectedNode = viewModel.selectedNode {
-                LearningNodeDetailCard(node: selectedNode) {
-                    viewModel.startSelectedNodeAfterDetailDismissal()
+            VStack(spacing: 10) {
+                if let selectedNode = viewModel.selectedNode {
+                    LearningNodeDetailCard(node: selectedNode) {
+                        viewModel.startSelectedNodeAfterDetailDismissal()
+                    }
+                    .background(.clear)
                 }
-                .background(.clear)
+
+                if viewModel.module != nil {
+                    ModuleProgressDock(progress: viewModel.moduleProgress)
+                }
             }
+            .padding(.bottom, 8)
         }
         .fullScreenCover(item: $viewModel.activeNode) { node in
             LearningNodeFullScreenView(node: node, namespace: namespace) {

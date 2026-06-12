@@ -11,16 +11,14 @@ struct UserProgressModel: Equatable {
     var unlockedAchievementIDs: Set<String>
 
     static let demo = UserProgressModel(
-        xp: 80,
+        xp: 0,
         level: 1,
-        streak: 3,
-        completedLessonIDs: ["basics-hello"],
+        streak: 0,
+        completedLessonIDs: [],
         completedLearningNodeIDs: [],
-        recognizedGestures: [.hello],
-        quizScores: [
-            QuizScore(date: .now.addingTimeInterval(-86_400), correctAnswers: 3, totalQuestions: 5)
-        ],
-        unlockedAchievementIDs: ["first-lesson"]
+        recognizedGestures: [],
+        quizScores: [],
+        unlockedAchievementIDs: []
     )
 
     var levelProgress: Double {

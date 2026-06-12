@@ -98,7 +98,11 @@ struct LiquidGlassProgressView: View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(Color.white.opacity(0.16))
+                    .fill(LiquidGlassTheme.accent.opacity(0.22))
+                    .overlay {
+                        Capsule()
+                            .stroke(LiquidGlassTheme.accent.opacity(0.34), lineWidth: 1)
+                    }
 
                 Capsule()
                     .fill(

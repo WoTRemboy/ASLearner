@@ -12,6 +12,8 @@ final class Texts {
     enum Tabbar {
         static let home = "Home"
         static let path = "Learning"
+        static let profile = "Profile"
+        static let settings = "Settings"
         static let dictionary = "Dictionary"
         static let stats = "Stats"
     }
@@ -150,6 +152,32 @@ final class Texts {
         static let recognitionCoverageSuffix = "gestures were accepted by the mock recognition pipeline."
         static let quizHistory = "Quiz history"
         static let emptyQuizHistory = "No generated quiz attempts yet."
+    }
+
+    enum ProfilePage {
+        static let title = "Profile"
+        static let subtitle = "Your sign language learning progress"
+        static let learningProgress = "Learning progress"
+        static let practiceSummary = "Practice summary"
+        static let achievements = "Achievements"
+        static let viewAchievements = "View achievements"
+    }
+
+    enum SettingsPage {
+        static let title = "Settings"
+        static let learning = "Learning"
+        static let recognition = "Recognition"
+        static let about = "About"
+        static let dailyGoal = "Daily goal"
+        static let dailyGoalValue = "10 minutes"
+        static let reminders = "Practice reminders"
+        static let remindersValue = "Enabled"
+        static let cameraMode = "Camera mode"
+        static let cameraModeValue = "Mock recognition"
+        static let localLLM = "Local LLM"
+        static let localLLMValue = "Mock hints"
+        static let appVersion = "Prototype version"
+        static let appVersionValue = "Research demo"
     }
 
     enum Stats {
