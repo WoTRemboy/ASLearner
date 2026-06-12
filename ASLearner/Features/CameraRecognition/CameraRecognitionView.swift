@@ -18,7 +18,7 @@ struct CameraRecognitionView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     cameraPreview
                         .padding(.horizontal, 20)

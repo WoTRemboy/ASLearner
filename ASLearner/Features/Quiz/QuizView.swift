@@ -18,7 +18,7 @@ struct QuizView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     if isLoading {
                         loadingCard

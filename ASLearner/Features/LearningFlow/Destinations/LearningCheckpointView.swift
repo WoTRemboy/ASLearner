@@ -18,7 +18,7 @@ struct LearningCheckpointView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 content
             }
         }

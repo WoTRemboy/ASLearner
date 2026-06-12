@@ -9,7 +9,7 @@ struct LearningTheoryView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 18) {
                     LearningStepHeader(node: node)
 

@@ -96,6 +96,7 @@ final class Texts {
         static let chooseAnswer = "Choose the correct answer"
         static let correctAnswer = "Correct. Step is ready to complete."
         static let wrongAnswer = "Try again. Look for the gesture meaning."
+        static let currentLesson = "Current lesson"
     }
 
     enum PracticePage {

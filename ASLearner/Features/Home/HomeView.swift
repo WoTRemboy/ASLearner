@@ -7,7 +7,7 @@ struct HomeView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {
                     progressHeader
                         .padding(.horizontal, 20)

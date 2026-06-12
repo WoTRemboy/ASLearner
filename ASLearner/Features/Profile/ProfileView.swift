@@ -7,7 +7,7 @@ struct ProfileView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     profileHeader
                         .padding(.horizontal, 20)

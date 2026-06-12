@@ -17,7 +17,7 @@ struct DictionaryView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
                     if filteredGestures.isEmpty {
                         emptyState
@@ -96,7 +96,7 @@ struct DictionaryDetailView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     LiquidGlassCard {
                         VStack(alignment: .leading, spacing: 18) {

@@ -12,12 +12,14 @@ struct LearningSectionsView: View {
             ZStack {
                 LiquidGlassBackground()
 
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
                         header
 
                         ForEach(sections) { section in
-                            LearningSectionCard(section: section)
+                            LearningSectionCard(section: section) {
+                                dismiss()
+                            }
                                 .padding(.horizontal, 20)
                         }
                     }
@@ -61,8 +63,24 @@ struct LearningSectionsView: View {
 
 private struct LearningSectionCard: View {
     let section: LearningSection
+    let onSelect: () -> Void
 
     var body: some View {
+        Group {
+            if canSelect {
+                Button(action: onSelect) {
+                    cardContent
+                        .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            } else {
+                cardContent
+            }
+        }
+        .opacity(section.isComingSoon ? 0.72 : 1)
+    }
+
+    private var cardContent: some View {
         LiquidGlassCard(cornerRadius: 24, padding: 16) {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top, spacing: 12) {
@@ -115,7 +133,10 @@ private struct LearningSectionCard: View {
                 }
             }
         }
-        .opacity(section.isComingSoon ? 0.72 : 1)
+    }
+
+    private var canSelect: Bool {
+        !section.isLocked && !section.isComingSoon
     }
 
     private var sectionSymbolName: String {

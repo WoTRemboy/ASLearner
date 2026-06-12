@@ -7,7 +7,7 @@ struct AchievementsView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
                     ForEach(appViewModel.achievements) { achievement in
                         AchievementBadge(achievement: achievement)

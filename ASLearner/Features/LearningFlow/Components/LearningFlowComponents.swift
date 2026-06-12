@@ -329,7 +329,6 @@ struct LearningNodeDetailCard: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 4)
-        .padding(.bottom, 10)
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 

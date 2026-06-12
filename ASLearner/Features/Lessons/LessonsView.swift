@@ -7,7 +7,7 @@ struct LessonsView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     ForEach(appViewModel.lessons) { lesson in
                         NavigationLink {
@@ -44,7 +44,7 @@ struct LessonDetailView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 18) {
                     LiquidGlassCard {
                         VStack(alignment: .leading, spacing: 14) {

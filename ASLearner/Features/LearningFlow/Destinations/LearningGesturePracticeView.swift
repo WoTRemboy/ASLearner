@@ -13,7 +13,7 @@ struct LearningGesturePracticeView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     LearningStepHeader(node: node)
 
