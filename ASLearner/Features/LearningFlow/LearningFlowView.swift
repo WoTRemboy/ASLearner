@@ -21,17 +21,6 @@ struct LearningFlowView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
-                        if let module = viewModel.module {
-                            ModuleHeaderCard(
-                                module: module,
-                                transitionID: sectionsTransitionID,
-                                namespace: namespace
-                            ) {
-                                viewModel.showSections()
-                            }
-                                .padding(.horizontal, 20)
-                        }
-
                         LearningPathView(
                             nodes: viewModel.nodes,
                             currentNodeID: viewModel.currentAvailableNodeID,
@@ -49,7 +38,7 @@ struct LearningFlowView: View {
                         .padding(.horizontal, 10)
                     }
                     .padding(.top, 8)
-                    .padding(.bottom, viewModel.selectedNode == nil ? 120 : 300)
+                    .padding(.bottom, 24)
                     .background {
                         Color.clear
                             .contentShape(Rectangle())
@@ -63,12 +52,26 @@ struct LearningFlowView: View {
                 .coordinateSpace(name: LearningFlowLayout.scrollCoordinateSpace)
                 .onPreferenceChange(CurrentLearningNodeMinYPreferenceKey.self) { minY in
                     withAnimation(.spring(response: 0.32, dampingFraction: 0.88)) {
-                        shouldShowCurrentLessonButton = (minY ?? 120) < 20
+                        shouldShowCurrentLessonButton = (minY ?? 120) < -80
                     }
                 }
             }
             .navigationTitle(Texts.LearningFlowPage.title)
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
+            .safeAreaInset(edge: .top) {
+                if let module = viewModel.module {
+                    ModuleHeaderCard(
+                        module: module,
+                        transitionID: sectionsTransitionID,
+                        namespace: namespace
+                    ) {
+                        viewModel.showSections()
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .padding(.bottom, 8)
+                }
+            }
             .safeAreaInset(edge: .bottom) {
                 VStack(spacing: 8) {
                     if let selectedNode = viewModel.selectedNode {

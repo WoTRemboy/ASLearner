@@ -161,6 +161,7 @@ final class Texts {
         static let learningProgress = "Learning progress"
         static let practiceSummary = "Practice summary"
         static let achievements = "Achievements"
+        static let latestAchievements = "Latest achievements"
         static let viewAchievements = "View achievements"
     }
 
@@ -188,7 +189,7 @@ final class Texts {
         static let badges = "Badges"
         static let level = "Level"
         static let streak = "Streak"
-        static let averageQuiz = "Average quiz"
+        static let averageQuiz = "Average"
     }
 
     enum GlassEffectId {
