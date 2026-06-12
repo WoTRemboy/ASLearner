@@ -57,3 +57,14 @@ struct LearningModule: Identifiable, Hashable {
     let description: String
     var nodes: [LearningNode]
 }
+
+struct LearningSection: Identifiable, Hashable {
+    let id: String
+    let title: String
+    let subtitle: String
+    let progress: Double
+    let completedCount: Int
+    let totalCount: Int
+    let isLocked: Bool
+    let isComingSoon: Bool
+}

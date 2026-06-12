@@ -3,16 +3,49 @@ import SwiftUI
 struct ModuleHeaderCard: View {
     let module: LearningModule
     let progress: Double
+    var transitionID: String?
+    var namespace: Namespace.ID?
+    var action: (() -> Void)?
 
     var body: some View {
+        Group {
+            if let action {
+                Button(action: action) {
+                    content
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            } else {
+                content
+            }
+        }
+        .accessibilityAddTraits(action == nil ? [] : .isButton)
+    }
+
+    private var content: some View {
         LiquidGlassCard {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top, spacing: 14) {
-                    Image(systemName: "map.fill")
+                    Image(systemName: "graduationcap.fill")
                         .font(Font.title2(.bold))
-                        .foregroundStyle(LiquidGlassTheme.accent)
+                        .foregroundStyle(.white)
                         .frame(width: 48, height: 48)
-                        .background(Color.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .background(
+                            LinearGradient(
+                                colors: [
+                                    LiquidGlassTheme.accent.opacity(0.95),
+                                    LiquidGlassTheme.accent.opacity(0.62)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        )
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .stroke(Color.white.opacity(0.38), lineWidth: 1)
+                        }
 
                     VStack(alignment: .leading, spacing: 5) {
                         Text(module.title)
@@ -35,10 +68,46 @@ struct ModuleHeaderCard: View {
                     .font(Font.caption(.semibold))
                     .foregroundStyle(LiquidGlassTheme.mutedForeground)
 
-                    LiquidGlassProgressView(value: progress, height: 10, tint: LiquidGlassTheme.success)
+                    ModuleProgressBar(value: progress)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .overlay {
+            ZoomTransitionSourceOverlay(id: transitionID, namespace: namespace, cornerRadius: 28)
+        }
+    }
+}
+
+private struct ModuleProgressBar: View {
+    let value: Double
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(LiquidGlassTheme.accent.opacity(0.22))
+                    .overlay {
+                        Capsule()
+                            .stroke(LiquidGlassTheme.accent.opacity(0.34), lineWidth: 1)
+                    }
+
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                LiquidGlassTheme.success,
+                                LiquidGlassTheme.success.opacity(0.62)
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .frame(width: max(0, min(1, value)) * proxy.size.width)
+            }
+        }
+        .frame(height: 10)
+        .animation(.spring(response: 0.45, dampingFraction: 0.82), value: value)
     }
 }
 
@@ -65,6 +134,8 @@ struct LearningPathLine: View {
 struct LearningNodeCircle: View {
     let node: LearningNode
     let isCurrent: Bool
+    var isSelected = false
+    let namespace: Namespace.ID
     let action: () -> Void
 
     @State private var pulse = false
@@ -90,6 +161,13 @@ struct LearningNodeCircle: View {
                         .opacity(pulse ? 0.12 : 0.55)
                 }
 
+                if isSelected {
+                    Circle()
+                        .stroke(Color.white.opacity(0.88), lineWidth: 4)
+                        .frame(width: 84, height: 84)
+                        .shadow(color: LiquidGlassTheme.accent.opacity(0.45), radius: 16, x: 0, y: 8)
+                }
+
                 Image(systemName: symbolName)
                     .font(Font.title2(.bold))
                     .foregroundStyle(iconColor)
@@ -97,13 +175,16 @@ struct LearningNodeCircle: View {
             .frame(width: 96, height: 96)
         }
         .buttonStyle(.plain)
-        .disabled(node.status == .locked)
-        .opacity(node.status == .locked ? 0.48 : 1)
+        .opacity(node.status == .locked ? 0.72 : 1)
         .onAppear {
             guard isCurrent else { return }
             withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
                 pulse = true
             }
+        }
+        .overlay {
+            ZoomTransitionSourceOverlay(id: node.id, namespace: namespace, cornerRadius: 48)
+                .frame(width: 96, height: 96)
         }
         .accessibilityLabel(node.title)
     }
@@ -113,7 +194,7 @@ struct LearningNodeCircle: View {
         case .completed:
             "checkmark"
         case .locked:
-            "lock.fill"
+            node.type.symbolName
         case .available:
             node.type.symbolName
         }
@@ -127,7 +208,10 @@ struct LearningNodeCircle: View {
         case .available:
             colors = [LiquidGlassTheme.accent, LiquidGlassTheme.secondaryAccent.opacity(0.78)]
         case .locked:
-            colors = [Color.white.opacity(0.20), Color.white.opacity(0.07)]
+            colors = [
+                LiquidGlassTheme.accent.opacity(0.46),
+                LiquidGlassTheme.secondaryAccent.opacity(0.30)
+            ]
         }
 
         return LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -140,7 +224,7 @@ struct LearningNodeCircle: View {
         case .completed:
             .regular.tint(LiquidGlassTheme.success.opacity(0.24))
         case .locked:
-            .regular.tint(Color.white.opacity(0.08))
+            .regular.tint(LiquidGlassTheme.accent.opacity(0.16))
         }
     }
 
@@ -151,12 +235,12 @@ struct LearningNodeCircle: View {
         case .available:
             Color.white.opacity(0.72)
         case .locked:
-            Color.white.opacity(0.16)
+            LiquidGlassTheme.accent.opacity(0.38)
         }
     }
 
     private var iconColor: Color {
-        node.status == .locked ? Color.white.opacity(0.62) : .white
+        node.status == .locked ? Color.white.opacity(0.68) : .white
     }
 
     private var shadowColor: Color {
@@ -166,43 +250,82 @@ struct LearningNodeCircle: View {
         case .available:
             LiquidGlassTheme.accent.opacity(0.30)
         case .locked:
-            Color.clear
+            LiquidGlassTheme.accent.opacity(0.10)
         }
     }
 }
 
-struct LearningNodeLabel: View {
+struct LearningNodeDetailCard: View {
     let node: LearningNode
+    let onStart: () -> Void
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack(spacing: 6) {
-                Text("\(node.order)")
-                    .font(Font.caption(.bold))
-                    .foregroundStyle(statusColor)
-
-                Text(node.type.title)
-                    .font(Font.caption(.semibold))
-                    .foregroundStyle(statusColor)
-            }
-
-            Text(node.title)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(LiquidGlassTheme.foreground)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Text("\(node.xpReward) \(Texts.LearningFlowPage.xp)")
-                .font(Font.caption())
-                .foregroundStyle(LiquidGlassTheme.mutedForeground)
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .frame(maxWidth: 168, alignment: .leading)
-        .glassEffect(.regular.tint(Color.BackgroundColors.card.opacity(node.status == .locked ? 0.12 : 0.30)), in: .rect(cornerRadius: 18))
-        .opacity(node.status == .locked ? 0.48 : 1)
+    private var canStart: Bool {
+        node.status != .locked
     }
 
-    private var statusColor: Color {
+    var body: some View {
+        VStack(spacing: 0) {
+            Image(systemName: node.status == .completed ? "checkmark.circle.fill" : node.type.symbolName)
+                .font(.system(size: 34, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 72, height: 72)
+                .background(node.status == .completed ? LiquidGlassTheme.success : LiquidGlassTheme.accent, in: Circle())
+                .overlay {
+                    Circle()
+                        .stroke(Color.white.opacity(0.46), lineWidth: 5)
+                }
+                .shadow(color: LiquidGlassTheme.accent.opacity(0.24), radius: 18, x: 0, y: 10)
+                .padding(.bottom, -10)
+                .zIndex(1)
+
+            LiquidGlassCard(cornerRadius: 26, padding: 18) {
+                VStack(alignment: .leading, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 8) {
+                            Text(node.type.title)
+                                .font(Font.caption(.bold))
+                                .foregroundStyle(detailTint)
+
+                            Text("\(Texts.LearningFlowPage.unit) \(node.order)")
+                                .font(Font.caption(.semibold))
+                                .foregroundStyle(LiquidGlassTheme.mutedForeground)
+                        }
+
+                        Text(node.title)
+                            .font(Font.title2(.bold))
+                            .foregroundStyle(LiquidGlassTheme.foreground)
+
+                        Text(node.status == .locked ? Texts.LearningFlowPage.lockedNode : node.subtitle)
+                            .font(Font.body())
+                            .foregroundStyle(LiquidGlassTheme.mutedForeground)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    Button(action: onStart) {
+                        HStack(spacing: 6) {
+                            Text(Texts.LearningFlowPage.start)
+                            Text("+\(node.xpReward) \(Texts.LearningFlowPage.xp)")
+                        }
+                        .font(.headline)
+                        .textCase(.uppercase)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                        .foregroundStyle(canStart ? detailTint : LiquidGlassTheme.mutedForeground)
+                        .background(Color.white.opacity(canStart ? 0.92 : 0.42), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!canStart)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 4)
+        .padding(.bottom, 10)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+    }
+
+    private var detailTint: Color {
         switch node.status {
         case .completed:
             LiquidGlassTheme.success
@@ -210,6 +333,28 @@ struct LearningNodeLabel: View {
             LiquidGlassTheme.accent
         case .locked:
             LiquidGlassTheme.mutedForeground
+        }
+    }
+}
+
+private struct ZoomTransitionSourceOverlay: View {
+    let id: String?
+    let namespace: Namespace.ID?
+    let cornerRadius: CGFloat
+
+    @ViewBuilder
+    var body: some View {
+        if let id, let namespace {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(Color.clear)
+                .matchedTransitionSource(id: id, in: namespace) { source in
+                    source
+                        .background(Color.clear)
+                        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                }
+                .allowsHitTesting(false)
+        } else {
+            EmptyView()
         }
     }
 }

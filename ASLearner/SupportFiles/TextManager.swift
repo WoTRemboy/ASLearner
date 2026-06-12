@@ -11,9 +11,7 @@ final class Texts {
 
     enum Tabbar {
         static let home = "Home"
-        static let path = "Path"
-        static let lessons = "Lessons"
-        static let quiz = "Quiz"
+        static let path = "Learning"
         static let dictionary = "Dictionary"
         static let stats = "Stats"
     }
@@ -73,12 +71,21 @@ final class Texts {
     }
 
     enum LearningFlowPage {
-        static let title = "Learning path"
+        static let title = "Learning"
         static let progress = "Module progress"
         static let completed = "Completed"
         static let available = "Available"
         static let locked = "Locked"
         static let xp = "XP"
+        static let start = "Start"
+        static let lockedNode = "Complete previous steps to unlock"
+        static let sectionsTitle = "Sections"
+        static let sectionsSubtitle = "Choose a learning section"
+        static let sectionsDescription = "The first section is connected to the current learning path. The rest show the future course structure."
+        static let comingSoonDescription = "New practice nodes, adaptive tests and recognition scenarios will appear here later."
+        static let comingSoon = "Coming soon..."
+        static let close = "Close"
+        static let unit = "Unit"
         static let complete = "Complete"
         static let completeLesson = "Complete lesson"
         static let completeCheckpoint = "Complete checkpoint"
@@ -125,6 +132,7 @@ final class Texts {
     enum DictionaryPage {
         static let title = "Dictionary"
         static let search = "Search gestures"
+        static let emptySearch = "No gestures found"
         static let category = "Category"
         static let difficulty = "Difficulty"
         static let howToPerform = "How to perform"
