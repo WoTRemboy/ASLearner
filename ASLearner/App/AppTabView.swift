@@ -11,6 +11,13 @@ struct AppTabView: View {
             }
 
             NavigationStack {
+                LearningFlowView()
+            }
+            .tabItem {
+                Label(Texts.Tabbar.path, systemImage: "map.fill")
+            }
+
+            NavigationStack {
                 LessonsView()
             }
             .tabItem {

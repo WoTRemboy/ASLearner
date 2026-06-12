@@ -11,6 +11,7 @@ final class Texts {
 
     enum Tabbar {
         static let home = "Home"
+        static let path = "Path"
         static let lessons = "Lessons"
         static let quiz = "Quiz"
         static let dictionary = "Dictionary"
@@ -69,6 +70,23 @@ final class Texts {
         static let lessonGestures = "Lesson gestures"
         static let minutes = "min"
         static let gestures = "gestures"
+    }
+
+    enum LearningFlowPage {
+        static let title = "Learning path"
+        static let progress = "Module progress"
+        static let completed = "Completed"
+        static let available = "Available"
+        static let locked = "Locked"
+        static let xp = "XP"
+        static let complete = "Complete"
+        static let completeLesson = "Complete lesson"
+        static let completeCheckpoint = "Complete checkpoint"
+        static let simulateGesture = "Simulate correct gesture"
+        static let gestureAccepted = "Gesture accepted. You can complete this step."
+        static let chooseAnswer = "Choose the correct answer"
+        static let correctAnswer = "Correct. Step is ready to complete."
+        static let wrongAnswer = "Try again. Look for the gesture meaning."
     }
 
     enum PracticePage {
