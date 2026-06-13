@@ -80,7 +80,7 @@ extension LocalLearningFlowService {
                 ),
                 LearningNode(
                     id: "basic-02-practice-hello",
-                    title: "Жест Hello",
+                    title: "Жест «Привет»",
                     subtitle: "Покажи приветствие перед камерой",
                     type: .gesturePractice,
                     status: .locked,
@@ -91,7 +91,7 @@ extension LocalLearningFlowService {
                 ),
                 LearningNode(
                     id: "basic-03-quiz-hello",
-                    title: "Проверь: Hello",
+                    title: "Проверь: «Привет»",
                     subtitle: "Закрепи значение первого жеста",
                     type: .quiz,
                     status: .locked,
@@ -113,7 +113,7 @@ extension LocalLearningFlowService {
                 ),
                 LearningNode(
                     id: "basic-05-practice-thank-you",
-                    title: "Жест Thank you",
+                    title: "Жест «Спасибо»",
                     subtitle: "Отработай благодарность",
                     type: .gesturePractice,
                     status: .locked,
@@ -124,7 +124,7 @@ extension LocalLearningFlowService {
                 ),
                 LearningNode(
                     id: "basic-06-quiz-thank-you",
-                    title: "Проверь: Thank you",
+                    title: "Проверь: «Спасибо»",
                     subtitle: "Выбери правильный перевод",
                     type: .quiz,
                     status: .locked,
@@ -135,7 +135,7 @@ extension LocalLearningFlowService {
                 ),
                 LearningNode(
                     id: "basic-07-practice-yes",
-                    title: "Жест Yes",
+                    title: "Жест «Да»",
                     subtitle: "Подтверждение в диалоге",
                     type: .gesturePractice,
                     status: .locked,
@@ -146,7 +146,7 @@ extension LocalLearningFlowService {
                 ),
                 LearningNode(
                     id: "basic-08-practice-no",
-                    title: "Жест No",
+                    title: "Жест «Нет»",
                     subtitle: "Отрицание в диалоге",
                     type: .gesturePractice,
                     status: .locked,
@@ -158,7 +158,7 @@ extension LocalLearningFlowService {
                 LearningNode(
                     id: "basic-09-mini-quiz",
                     title: "Мини-тест: первые жесты",
-                    subtitle: "Hello, Thank you, Yes и No",
+                    subtitle: "Привет, спасибо, да и нет",
                     type: .quiz,
                     status: .locked,
                     order: 9,

@@ -66,25 +66,25 @@ enum GestureRecognitionResultMapper {
     nonisolated private static func englishName(for gesture: GestureType) -> String {
         switch gesture {
         case .hello:
-            return "Hello"
+            return "Привет"
         case .thankYou:
-            return "Thank you"
+            return "Спасибо"
         case .yes:
-            return "Yes"
+            return "Да"
         case .no:
-            return "No"
+            return "Нет"
         case .please:
-            return "Please"
+            return "Пожалуйста"
         case .help:
-            return "Help"
+            return "Помощь"
         case .good:
-            return "Good"
+            return "Хорошо"
         case .bad:
-            return "Bad"
+            return "Плохо"
         case .iLoveYou:
-            return "I love you"
+            return "Я люблю тебя"
         case .learn:
-            return "Learn"
+            return "Учиться"
         }
     }
 

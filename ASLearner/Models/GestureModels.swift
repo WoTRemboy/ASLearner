@@ -16,9 +16,9 @@ enum GestureType: String, CaseIterable, Identifiable, Hashable {
 }
 
 enum GestureDifficulty: String, CaseIterable {
-    case beginner = "Beginner"
-    case medium = "Medium"
-    case advanced = "Advanced"
+    case beginner = "Начальный"
+    case medium = "Средний"
+    case advanced = "Сложный"
 }
 
 struct GestureModel: Identifiable, Hashable {
@@ -41,11 +41,11 @@ enum RecognitionStatus: String {
     var title: String {
         switch self {
         case .recognized:
-            "Recognized"
+            "Распознан"
         case .lowConfidence:
-            "Low confidence"
+            "Низкая уверенность"
         case .notDetected:
-            "Not detected"
+            "Не найден"
         }
     }
 }
@@ -58,4 +58,3 @@ struct GestureRecognitionResult: Identifiable, Equatable {
     let timestamp: Date
     let status: RecognitionStatus
 }
-

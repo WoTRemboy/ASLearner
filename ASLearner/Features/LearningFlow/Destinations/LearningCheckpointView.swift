@@ -13,10 +13,10 @@ struct LearningCheckpointView: View {
     @State private var didApplyCompletion = false
 
     private let checks = [
-        "Explain what sign language is",
-        "Perform Hello and Thank you",
-        "Recognize Yes and No",
-        "Pass the mini quiz"
+        "Объяснить, что такое жестовый язык",
+        "Показать «Привет» и «Спасибо»",
+        "Распознать «Да» и «Нет»",
+        "Пройти мини-тест"
     ]
 
     var body: some View {
@@ -105,9 +105,9 @@ struct LearningCheckpointView: View {
                     LearningTaskReferencePage(
                         node: node,
                         symbolName: "flag.checkered",
-                        title: "Module checkpoint",
-                        text: "Finish the section by confirming the core skills from the first path: theory, camera practice and short recognition checks.",
-                        notes: ["4 checks", "Basic gestures", "Progress update"]
+                        title: "Итог модуля",
+                        text: "Завершите раздел: подтвердите теорию, практику с камерой и короткие проверки распознавания.",
+                        notes: ["4 проверки", "Базовые жесты", "Обновление прогресса"]
                     )
                 case 1:
                     checklistPage
@@ -115,7 +115,7 @@ struct LearningCheckpointView: View {
                     LearningTaskResultPage(
                         percent: session.resultPercentCounter,
                         isShowingContent: session.isShowingResultContent,
-                        title: "Checkpoint",
+                        title: "Итог",
                         value: "\(node.xpReward) XP",
                         timeString: session.timeString,
                         systemImage: "flag.checkered"
@@ -133,11 +133,11 @@ struct LearningCheckpointView: View {
     private var checklistPage: some View {
         VStack(alignment: .leading, spacing: 18) {
             VStack(alignment: .leading, spacing: 10) {
-                Text("Module checklist")
+                Text("Чек-лист модуля")
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(LiquidGlassTheme.foreground)
 
-                Text("Tap each item after you confirm the skill.")
+                Text("Отметьте пункты после проверки навыка.")
                     .font(.title3)
                     .fontWeight(.medium)
                     .foregroundStyle(LiquidGlassTheme.mutedForeground)

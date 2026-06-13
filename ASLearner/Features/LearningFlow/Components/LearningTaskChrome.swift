@@ -187,7 +187,7 @@ struct LearningTaskResultPage: View {
                     )
 
                     resultPill(
-                        title: "Time",
+                        title: "Время",
                         value: timeString,
                         systemImage: "timer",
                         tint: LiquidGlassTheme.accent,

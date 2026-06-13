@@ -3,11 +3,10 @@ import Foundation
 struct MockLocalLLMService: LocalLLMServiceProtocol {
     func generateHint(for gesture: GestureType) async -> String {
         let model = GestureRepository.gesture(for: gesture)
-        return "Local hint: focus on the hand shape first, then repeat the motion slowly. \(model.executionDescription)"
+        return "Подсказка: сначала зафиксируйте форму ладони, затем повторите движение медленно. \(model.executionDescription)"
     }
 
     func generateQuiz(topic: String) async -> String {
-        "Generated locally: a short adaptive quiz about \(topic) with translation, recognition, and camera practice tasks."
+        "Локально сгенерирован короткий тест по теме «\(topic)»: перевод, распознавание и практика с камерой."
     }
 }
-

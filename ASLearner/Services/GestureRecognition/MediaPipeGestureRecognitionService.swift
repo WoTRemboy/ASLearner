@@ -8,9 +8,9 @@ enum MediaPipeGestureRecognitionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .modelMissing(let modelName):
-            "MediaPipe model \(modelName) was not found in the app bundle."
+            "Модель MediaPipe \(modelName) не найдена в bundle приложения."
         case .recognizerNotReady:
-            "Gesture recognizer is not ready."
+            "Распознаватель жестов ещё не готов."
         }
     }
 }

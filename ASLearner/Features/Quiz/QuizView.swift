@@ -201,7 +201,7 @@ struct QuizView: View {
         isLoading = true
         didSubmit = false
         selectedAnswers = [:]
-        questions = await appViewModel.container.quizGenerationService.generateQuiz(topic: "Basic sign language", gestures: appViewModel.gestures)
+        questions = await appViewModel.container.quizGenerationService.generateQuiz(topic: "Базовые жесты", gestures: appViewModel.gestures)
         isLoading = false
     }
 }

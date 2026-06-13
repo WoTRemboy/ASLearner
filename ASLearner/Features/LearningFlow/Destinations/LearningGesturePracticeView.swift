@@ -126,7 +126,7 @@ struct LearningGesturePracticeView: View {
                     LearningTaskReferencePage(
                         node: node,
                         symbolName: gesture.symbolName,
-                        title: "Prepare \(gesture.englishName)",
+                        title: "Подготовьте жест «\(gesture.englishName)»",
                         text: gesture.executionDescription,
                         notes: [
                             gesture.russianName,
@@ -140,7 +140,7 @@ struct LearningGesturePracticeView: View {
                     LearningTaskResultPage(
                         percent: session.resultPercentCounter,
                         isShowingContent: session.isShowingResultContent,
-                        title: "Practice",
+                        title: "Практика",
                         value: "\(node.xpReward) XP",
                         timeString: session.timeString,
                         systemImage: "hand.raised.fill"

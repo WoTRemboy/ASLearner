@@ -9,13 +9,13 @@ enum LearningNodeType: String, CaseIterable, Hashable {
     var title: String {
         switch self {
         case .theoreticalLesson:
-            "Theory"
+            "Теория"
         case .gesturePractice:
-            "Practice"
+            "Практика"
         case .quiz:
-            "Quiz"
+            "Тест"
         case .checkpoint:
-            "Checkpoint"
+            "Итог"
         }
     }
 

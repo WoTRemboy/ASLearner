@@ -196,7 +196,7 @@ private struct LearningQuizScoreView: View {
     let score: Int
 
     var body: some View {
-        Text("Score: \(score)")
+        Text("Счёт: \(score)")
             .font(.headline)
             .contentTransition(.numericText(value: Double(score)))
             .frame(minWidth: 92)
@@ -240,7 +240,7 @@ private struct LearningQuizPracticePage: View {
             }
 
             VStack(alignment: .leading, spacing: 10) {
-                Text("Try \(gesture.englishName)")
+                Text("Попробуйте «\(gesture.englishName)»")
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(LiquidGlassTheme.foreground)
 
@@ -252,7 +252,7 @@ private struct LearningQuizPracticePage: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 if viewModel.didPractice {
-                    Label("Practice accepted. Continue to the test.", systemImage: "checkmark.seal.fill")
+                    Label("Практика принята. Переходите к тесту.", systemImage: "checkmark.seal.fill")
                         .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(LiquidGlassTheme.success)
                     .transition(.blurReplace)
@@ -379,7 +379,7 @@ private struct LearningQuizResultPage: View {
         GlassEffectContainer {
             HStack(spacing: 12) {
                 resultPill(
-                    title: "Score",
+                    title: "Счёт",
                     value: "\(viewModel.quizScore)",
                     systemImage: "bolt.fill",
                     tint: LiquidGlassTheme.warning,
@@ -387,7 +387,7 @@ private struct LearningQuizResultPage: View {
                 )
 
                 resultPill(
-                    title: "Time",
+                    title: "Время",
                     value: viewModel.timeString,
                     systemImage: "timer",
                     tint: LiquidGlassTheme.accent,

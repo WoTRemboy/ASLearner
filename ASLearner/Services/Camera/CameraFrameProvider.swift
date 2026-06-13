@@ -11,13 +11,13 @@ enum CameraFrameProviderError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .permissionDenied:
-            "Camera permission is required for live gesture recognition."
+            "Для live-распознавания нужен доступ к камере."
         case .noCamera:
-            "No available camera was found on this device."
+            "На устройстве не найдена доступная камера."
         case .cannotAddInput:
-            "The camera input could not be added to the capture session."
+            "Не удалось добавить камеру в сессию захвата."
         case .cannotAddOutput:
-            "The video output could not be added to the capture session."
+            "Не удалось добавить видеовыход в сессию захвата."
         }
     }
 }

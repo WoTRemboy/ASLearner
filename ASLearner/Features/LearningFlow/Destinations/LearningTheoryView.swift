@@ -93,7 +93,7 @@ struct LearningTheoryView: View {
                     LearningTaskResultPage(
                         percent: session.resultPercentCounter,
                         isShowingContent: session.isShowingResultContent,
-                        title: "Lesson",
+                        title: "Урок",
                         value: "\(node.xpReward) XP",
                         timeString: session.timeString,
                         systemImage: "book.pages.fill"
@@ -139,21 +139,21 @@ struct LearningTheoryView: View {
             return [
                 TheoryBlock(
                     symbolName: "viewfinder",
-                    title: "Keep hands visible",
-                    text: "Place both hands inside the camera frame before starting recognition. The model needs a clear view of wrists, palms and fingers.",
-                    notes: ["Hands in frame", "Shoulders relaxed", "No fast cuts"]
+                    title: "Держите руки в кадре",
+                    text: "Перед распознаванием поместите руки в область камеры. Модели нужен чистый вид кистей, ладоней и пальцев.",
+                    notes: ["Руки в кадре", "Плечи расслаблены", "Без резких движений"]
                 ),
                 TheoryBlock(
                     symbolName: "light.max.fill",
-                    title: "Use good lighting",
-                    text: "A bright and even light source helps computer vision detect key points more reliably and lowers false negatives.",
-                    notes: ["Face the light", "Avoid backlight", "Plain background"]
+                    title: "Добавьте света",
+                    text: "Ровное освещение помогает компьютерному зрению точнее находить ключевые точки руки.",
+                    notes: ["Свет спереди", "Без контрового света", "Спокойный фон"]
                 ),
                 TheoryBlock(
                     symbolName: "hand.raised.fill",
-                    title: "Move smoothly",
-                    text: "Perform the gesture slowly first, then repeat it with natural speed. The prototype is tuned for readable demonstration movement.",
-                    notes: ["Slow first", "Repeat once", "Natural tempo"]
+                    title: "Двигайтесь плавно",
+                    text: "Сначала выполните жест медленно, затем повторите в естественном темпе. Так прототипу проще считать движение.",
+                    notes: ["Сначала медленно", "Повторите один раз", "Естественный темп"]
                 )
             ]
         }
@@ -161,21 +161,21 @@ struct LearningTheoryView: View {
         return [
             TheoryBlock(
                 symbolName: "hand.wave.fill",
-                title: "Visual language",
-                text: "Sign language uses hands, facial expression and body position to communicate meaning. The app starts with simple everyday gestures.",
-                notes: ["Hands", "Expression", "Body position"]
+                title: "Визуальный язык",
+                text: "Жестовый язык передаёт смысл через руки, мимику и положение тела. Мы начнём с простых повседневных жестов.",
+                notes: ["Руки", "Мимика", "Положение тела"]
             ),
             TheoryBlock(
                 symbolName: "person.2.fill",
-                title: "Context matters",
-                text: "The same movement can be understood better when it is practiced in short everyday dialogs and linked to a clear translation.",
-                notes: ["Meaning", "Dialog", "Translation"]
+                title: "Контекст важен",
+                text: "Жест легче запомнить, если связать его с короткой ситуацией и понятным переводом.",
+                notes: ["Смысл", "Диалог", "Перевод"]
             ),
             TheoryBlock(
                 symbolName: "camera.viewfinder",
-                title: "Learn by doing",
-                text: "The learning path alternates short cards, camera practice and checks so the gesture is tried immediately after the explanation.",
-                notes: ["Short theory", "Practice next", "Instant check"]
+                title: "Учитесь через действие",
+                text: "Маршрут чередует короткие справки, практику с камерой и проверки, чтобы жест сразу закреплялся.",
+                notes: ["Короткая теория", "Практика сразу", "Быстрая проверка"]
             )
         ]
     }
