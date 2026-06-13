@@ -38,6 +38,7 @@ struct QuizView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.QuizPage.title)
         .navigationBarTitleDisplayMode(.large)

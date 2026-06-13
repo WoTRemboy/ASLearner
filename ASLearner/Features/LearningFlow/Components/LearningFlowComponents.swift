@@ -283,7 +283,7 @@ struct LearningNodeDetailCard: View {
                         .stroke(Color.white.opacity(0.46), lineWidth: 5)
                 }
                 .shadow(color: LiquidGlassTheme.accent.opacity(0.24), radius: 18, x: 0, y: 10)
-                .padding(.bottom, -10)
+                .offset(y: 24)
                 .zIndex(1)
 
             LiquidGlassCard(cornerRadius: 26, padding: 18) {
@@ -312,18 +312,23 @@ struct LearningNodeDetailCard: View {
                     Button(action: onStart) {
                         HStack(spacing: 6) {
                             Text(Texts.LearningFlowPage.start)
-                            Text("+\(node.xpReward) \(Texts.LearningFlowPage.xp)")
+                            Text("+\(displayedXPReward) \(Texts.LearningFlowPage.xp)")
                         }
                         .font(.headline)
                         .textCase(.uppercase)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 15)
                         .foregroundStyle(canStart ? detailTint : LiquidGlassTheme.mutedForeground)
-                        .background(Color.white.opacity(canStart ? 0.92 : 0.42), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .background(buttonBackground, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .stroke(detailTint.opacity(canStart ? 0.28 : 0.12), lineWidth: 1)
+                        }
                     }
                     .buttonStyle(.plain)
                     .disabled(!canStart)
                 }
+                .contentTransition(.numericText())
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -341,6 +346,14 @@ struct LearningNodeDetailCard: View {
         case .locked:
             LiquidGlassTheme.mutedForeground
         }
+    }
+
+    private var displayedXPReward: Int {
+        node.status == .completed ? 0 : node.xpReward
+    }
+
+    private var buttonBackground: Color {
+        canStart ? detailTint.opacity(0.16) : LiquidGlassTheme.mutedForeground.opacity(0.10)
     }
 }
 

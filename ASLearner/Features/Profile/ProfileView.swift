@@ -23,6 +23,7 @@ struct ProfileView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.ProfilePage.title)
         .navigationBarTitleDisplayMode(.large)
@@ -58,7 +59,7 @@ struct ProfileView: View {
 
     private var overviewGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
-            ProfileStatTile(title: Texts.Stats.streak, value: "\(appViewModel.progress.streak)d", systemImage: "flame.fill", tint: LiquidGlassTheme.secondaryAccent)
+            ProfileStatTile(title: Texts.Stats.streak, value: "\(appViewModel.progress.streak)", systemImage: "flame.fill", tint: LiquidGlassTheme.secondaryAccent)
             ProfileStatTile(title: Texts.Stats.lessons, value: "\(completedLearningStepCount)", systemImage: "play.fill")
         }
     }

@@ -26,6 +26,7 @@ struct LearningSectionsView: View {
                     .padding(.top, 10)
                     .padding(.bottom, 28)
                 }
+                .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
             }
             .navigationTitle(Texts.LearningFlowPage.sectionsTitle)
             .navigationBarTitleDisplayMode(.inline)

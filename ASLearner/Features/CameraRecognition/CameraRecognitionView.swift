@@ -39,6 +39,7 @@ struct CameraRecognitionView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.CameraPage.title)
         .navigationBarTitleDisplayMode(.inline)

@@ -16,6 +16,7 @@ struct AchievementsView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.AchievementsPage.title)
         .navigationBarTitleDisplayMode(.inline)

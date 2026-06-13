@@ -2,6 +2,8 @@ import SwiftUI
 
 struct LearningCheckpointView: View {
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var session = LearningTaskSessionViewModel(pageCount: 3)
+
     let node: LearningNode
     let onComplete: () -> Void
 
@@ -17,31 +19,112 @@ struct LearningCheckpointView: View {
     var body: some View {
         ZStack {
             LiquidGlassBackground()
-
-            ScrollView(showsIndicators: false) {
-                content
+            animatedPageContent
+        }
+        .safeAreaInset(edge: .top) {
+            LearningTaskProgressBar(progress: session.progress)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+        }
+        .safeAreaInset(edge: .bottom) {
+            if session.isResultPage {
+                LearningTaskResultButton(title: Texts.LearningFlowPage.completeCheckpoint) {
+                    onComplete()
+                    dismiss()
+                }
+            } else {
+                LearningTaskBottomControls(
+                    timeString: session.timeString,
+                    elapsedSeconds: session.elapsedSeconds,
+                    canMoveForward: canMoveForward,
+                    close: { dismiss() },
+                    moveForward: { session.moveForward(canMoveForward: canMoveForward) }
+                )
             }
         }
         .navigationTitle(node.title)
         .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var content: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            LearningStepHeader(node: node)
-            checklistCard
-            completeButton
+        .onAppear {
+            session.startTimer()
         }
-        .padding(20)
+        .onDisappear {
+            session.stopTimer()
+        }
     }
 
-    private var checklistCard: some View {
-        LiquidGlassCard {
-            VStack(alignment: .leading, spacing: 14) {
+    private var canMoveForward: Bool {
+        switch session.currentPageIndex {
+        case 0:
+            true
+        case 1:
+            completedChecks.count == checks.count
+        default:
+            true
+        }
+    }
+
+    private var animatedPageContent: some View {
+        ZStack {
+            ForEach([session.currentPageID], id: \.self) { _ in
+                pageContent
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        )
+                    )
+            }
+        }
+        .animation(.spring(response: 0.42, dampingFraction: 0.86), value: session.currentPageID)
+    }
+
+    @ViewBuilder
+    private var pageContent: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 22) {
+                switch session.currentPageIndex {
+                case 0:
+                    LearningTaskReferencePage(
+                        node: node,
+                        symbolName: "flag.checkered",
+                        title: "Module checkpoint",
+                        text: "Finish the section by confirming the core skills from the first path: theory, camera practice and short recognition checks.",
+                        notes: ["4 checks", "Basic gestures", "Progress update"]
+                    )
+                case 1:
+                    checklistPage
+                default:
+                    LearningTaskResultPage(
+                        percent: session.resultPercentCounter,
+                        isShowingContent: session.isShowingResultContent,
+                        title: "Checkpoint",
+                        value: "\(node.xpReward) XP",
+                        timeString: session.timeString,
+                        systemImage: "flag.checkered"
+                    )
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+            .padding(.bottom, 24)
+        }
+        .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
+    }
+
+    private var checklistPage: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Module checklist")
-                    .font(Font.title2(.bold))
+                    .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(LiquidGlassTheme.foreground)
 
+                Text("Tap each item after you confirm the skill.")
+                    .font(.title3)
+                    .fontWeight(.medium)
+                    .foregroundStyle(LiquidGlassTheme.mutedForeground)
+            }
+
+            VStack(spacing: 12) {
                 ForEach(checks, id: \.self) { check in
                     checkButton(check)
                 }
@@ -58,22 +141,22 @@ struct LearningCheckpointView: View {
             HStack(spacing: 12) {
                 Image(systemName: completedChecks.contains(check) ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(completedChecks.contains(check) ? LiquidGlassTheme.success : LiquidGlassTheme.mutedForeground)
+                    .font(.title3)
 
                 Text(check)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(LiquidGlassTheme.foreground)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .glassEffect(.regular.interactive().tint(rowTint(for: check)), in: .rect(cornerRadius: 18))
+            .contentShape(.rect)
         }
         .buttonStyle(.plain)
     }
 
-    private var completeButton: some View {
-        LiquidGlassButton(title: Texts.LearningFlowPage.completeCheckpoint, systemImage: "flag.checkered", tint: LiquidGlassTheme.success) {
-            onComplete()
-            dismiss()
-        }
-        .disabled(completedChecks.count < checks.count)
-        .opacity(completedChecks.count == checks.count ? 1 : 0.45)
+    private func rowTint(for check: String) -> Color {
+        completedChecks.contains(check) ? LiquidGlassTheme.success.opacity(0.16) : LiquidGlassTheme.glassTint
     }
 }

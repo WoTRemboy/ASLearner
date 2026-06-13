@@ -50,6 +50,7 @@ struct LearningFlowView: View {
                     }
                 }
                 .coordinateSpace(name: LearningFlowLayout.scrollCoordinateSpace)
+                .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
                 .onPreferenceChange(CurrentLearningNodeMinYPreferenceKey.self) { minY in
                     withAnimation(.spring(response: 0.32, dampingFraction: 0.88)) {
                         shouldShowCurrentLessonButton = (minY ?? 120) < -80
@@ -68,7 +69,6 @@ struct LearningFlowView: View {
                         viewModel.showSections()
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 8)
                     .padding(.bottom, 8)
                 }
             }
@@ -187,16 +187,6 @@ private struct LearningNodeFullScreenView: View {
     var body: some View {
         NavigationStack {
             LearningNodeDestinationView(node: node, onComplete: onComplete)
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(systemName: "xmark")
-                        }
-                        .accessibilityLabel(Texts.LearningFlowPage.close)
-                    }
-                }
         }
         .navigationTransition(
             .zoom(sourceID: node.id, in: namespace)

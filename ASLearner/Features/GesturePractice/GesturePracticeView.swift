@@ -67,6 +67,7 @@ struct GesturePracticeView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle("\(Texts.PracticePage.titlePrefix) \(gesture.englishName)")
         .navigationBarTitleDisplayMode(.inline)

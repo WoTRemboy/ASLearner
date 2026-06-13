@@ -37,6 +37,7 @@ struct DictionaryView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.DictionaryPage.title)
         .navigationBarTitleDisplayMode(.large)
@@ -116,6 +117,7 @@ struct DictionaryDetailView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(gesture.englishName)
         .navigationBarTitleDisplayMode(.inline)

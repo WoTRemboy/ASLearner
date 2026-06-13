@@ -25,6 +25,7 @@ struct LessonsView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.LessonsPage.title)
         .navigationBarTitleDisplayMode(.large)
@@ -87,6 +88,7 @@ struct LessonDetailView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(lesson.title)
         .navigationBarTitleDisplayMode(.inline)

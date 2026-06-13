@@ -23,6 +23,7 @@ struct HomeView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.HomePage.title)
         .navigationBarTitleDisplayMode(.large)
