@@ -33,7 +33,6 @@ struct SettingsView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 28)
             }
-            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.SettingsPage.title)
         .navigationBarTitleDisplayMode(.large)

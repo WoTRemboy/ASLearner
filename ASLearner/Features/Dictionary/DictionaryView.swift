@@ -37,7 +37,6 @@ struct DictionaryView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 28)
             }
-            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.DictionaryPage.title)
         .navigationBarTitleDisplayMode(.large)
@@ -66,11 +65,13 @@ struct DictionaryView: View {
     private func dictionaryRow(_ gesture: GestureModel) -> some View {
         LiquidGlassCard(cornerRadius: 22, padding: 14) {
             HStack(spacing: 14) {
-                Image(systemName: gesture.symbolName)
-                    .font(.title3.weight(.bold))
-                    .foregroundStyle(LiquidGlassTheme.accent)
-                    .frame(width: 48, height: 48)
-                    .background(Color.white.opacity(0.13), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                GestureGalleryIcon(
+                    gesture: gesture,
+                    isUnlocked: isGestureRecognized(gesture),
+                    tint: gestureTint(for: gesture),
+                    size: 52
+                )
+                .frame(width: 52)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(gesture.englishName)
@@ -88,9 +89,20 @@ struct DictionaryView: View {
             }
         }
     }
+
+    private func isGestureRecognized(_ gesture: GestureModel) -> Bool {
+        appViewModel.progress.recognizedGestures.contains(gesture.type)
+    }
+
+    private func gestureTint(for gesture: GestureModel) -> Color {
+        let index = appViewModel.gestures.firstIndex { $0.id == gesture.id } ?? 0
+        return LiquidGlassGalleryPalette.tint(for: index)
+    }
 }
 
 struct DictionaryDetailView: View {
+    @EnvironmentObject private var appViewModel: AppViewModel
+
     let gesture: GestureModel
 
     var body: some View {
@@ -101,12 +113,14 @@ struct DictionaryDetailView: View {
                 VStack(spacing: 18) {
                     LiquidGlassCard {
                         VStack(alignment: .leading, spacing: 18) {
-                            Image(systemName: gesture.symbolName)
-                                .font(.system(size: 76, weight: .bold))
-                                .foregroundStyle(LiquidGlassTheme.accent)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 26)
-                                .background(Color.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                            GestureGalleryIcon(
+                                gesture: gesture,
+                                isUnlocked: isGestureRecognized,
+                                tint: gestureTint,
+                                size: 112
+                            )
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 26)
 
                             detailRow(title: Texts.DictionaryPage.category, value: gesture.category)
                             detailRow(title: Texts.DictionaryPage.difficulty, value: gesture.difficulty.rawValue)
@@ -117,7 +131,6 @@ struct DictionaryDetailView: View {
                 }
                 .padding(.bottom, 28)
             }
-            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(gesture.englishName)
         .navigationBarTitleDisplayMode(.inline)
@@ -133,5 +146,14 @@ struct DictionaryDetailView: View {
                 .foregroundStyle(LiquidGlassTheme.foreground.opacity(0.88))
                 .fixedSize(horizontal: false, vertical: true)
         }
+    }
+
+    private var isGestureRecognized: Bool {
+        appViewModel.progress.recognizedGestures.contains(gesture.type)
+    }
+
+    private var gestureTint: Color {
+        let index = appViewModel.gestures.firstIndex { $0.id == gesture.id } ?? 0
+        return LiquidGlassGalleryPalette.tint(for: index)
     }
 }

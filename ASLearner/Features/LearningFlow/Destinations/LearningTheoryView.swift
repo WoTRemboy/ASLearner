@@ -3,13 +3,16 @@ import SwiftUI
 struct LearningTheoryView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var session: LearningTaskSessionViewModel
+    @State private var streakUpdate: DayStreakUpdate?
+    @State private var canContinueAfterStreak = false
+    @State private var didApplyCompletion = false
 
     let node: LearningNode
-    let onComplete: () -> Void
+    let onComplete: () -> DayStreakUpdate?
 
     private let infoBlocks: [TheoryBlock]
 
-    init(node: LearningNode, onComplete: @escaping () -> Void) {
+    init(node: LearningNode, onComplete: @escaping () -> DayStreakUpdate?) {
         let blocks = LearningTheoryView.makeInfoBlocks(for: node)
         self.node = node
         self.onComplete = onComplete
@@ -28,11 +31,19 @@ struct LearningTheoryView: View {
                 .padding(.vertical, 12)
         }
         .safeAreaInset(edge: .bottom) {
-            if session.isResultPage {
-                LearningTaskResultButton(title: Texts.LearningFlowPage.completeLesson) {
-                    onComplete()
+            if streakUpdate != nil {
+                LearningTaskResultButton(
+                    title: Texts.LearningFlowPage.continueButton,
+                    isEnabled: canContinueAfterStreak
+                ) {
                     dismiss()
                 }
+            } else if session.isResultPage {
+                LearningTaskResultButton(
+                    title: Texts.LearningFlowPage.completeLesson,
+                    isEnabled: session.isShowingResultContent,
+                    action: completeTask
+                )
             } else {
                 LearningTaskBottomControls(
                     timeString: session.timeString,
@@ -72,7 +83,13 @@ struct LearningTheoryView: View {
     private var pageContent: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 22) {
-                if session.isResultPage {
+                if let streakUpdate {
+                    LearningStreakCelebrationPage(update: streakUpdate) {
+                        withAnimation(.spring(response: 0.34, dampingFraction: 0.78)) {
+                            canContinueAfterStreak = true
+                        }
+                    }
+                } else if session.isResultPage {
                     LearningTaskResultPage(
                         percent: session.resultPercentCounter,
                         isShowingContent: session.isShowingResultContent,
@@ -97,6 +114,24 @@ struct LearningTheoryView: View {
             .padding(.bottom, 24)
         }
         .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
+    }
+
+    private func completeTask() {
+        guard !didApplyCompletion else {
+            dismiss()
+            return
+        }
+
+        didApplyCompletion = true
+
+        if let update = onComplete() {
+            canContinueAfterStreak = false
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.86)) {
+                streakUpdate = update
+            }
+        } else {
+            dismiss()
+        }
     }
 
     private static func makeInfoBlocks(for node: LearningNode) -> [TheoryBlock] {

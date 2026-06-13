@@ -10,11 +10,14 @@ struct LearningQuizStepView: View {
     @StateObject private var viewModel: LearningQuizSessionViewModel
     @State private var cameraStopRequest = 0
     @State private var pendingCameraStopAction: QuizCameraStopAction?
+    @State private var streakUpdate: DayStreakUpdate?
+    @State private var canContinueAfterStreak = false
+    @State private var didApplyCompletion = false
 
     let node: LearningNode
-    let onComplete: () -> Void
+    let onComplete: () -> DayStreakUpdate?
 
-    init(node: LearningNode, onComplete: @escaping () -> Void) {
+    init(node: LearningNode, onComplete: @escaping () -> DayStreakUpdate?) {
         self.node = node
         self.onComplete = onComplete
         self._viewModel = StateObject(wrappedValue: LearningQuizSessionViewModel(node: node))
@@ -32,11 +35,18 @@ struct LearningQuizStepView: View {
                 .padding(.vertical, 12)
         }
         .safeAreaInset(edge: .bottom) {
-            if viewModel.isResultPage {
-                LearningTaskResultButton {
-                    onComplete()
+            if streakUpdate != nil {
+                LearningTaskResultButton(
+                    title: Texts.LearningFlowPage.continueButton,
+                    isEnabled: canContinueAfterStreak
+                ) {
                     dismiss()
                 }
+            } else if viewModel.isResultPage {
+                LearningTaskResultButton(
+                    isEnabled: viewModel.isShowingResultContent,
+                    action: completeTask
+                )
             } else {
                 LearningTaskBottomControls(
                     timeString: viewModel.timeString,
@@ -50,6 +60,14 @@ struct LearningQuizStepView: View {
             }
         }
         .toolbar {
+            if shouldShowSkipButton {
+                ToolbarItem(placement: .topBarTrailing) {
+                    SkipGestureToolbarButton {
+                        viewModel.simulatePractice()
+                    }
+                }
+            }
+
             ToolbarItem {
                 LearningQuizScoreView(score: viewModel.quizScore)
             }
@@ -62,6 +80,10 @@ struct LearningQuizStepView: View {
         .onDisappear {
             viewModel.stopTimer()
         }
+    }
+
+    private var shouldShowSkipButton: Bool {
+        viewModel.currentPage == .practice && !viewModel.didPractice && streakUpdate == nil
     }
 
     @ViewBuilder
@@ -84,7 +106,14 @@ struct LearningQuizStepView: View {
     private func pageContent(for page: LearningQuizPage) -> some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 22) {
-                switch page {
+                if let streakUpdate {
+                    LearningStreakCelebrationPage(update: streakUpdate) {
+                        withAnimation(.spring(response: 0.34, dampingFraction: 0.78)) {
+                            canContinueAfterStreak = true
+                        }
+                    }
+                } else {
+                    switch page {
                 case .theory(let card):
                     LearningQuizTheoryPage(card: card, node: node)
                 case .practice:
@@ -99,6 +128,7 @@ struct LearningQuizStepView: View {
                     LearningQuizQuestionPage(question: question, viewModel: viewModel)
                 case .result:
                     LearningQuizResultPage(viewModel: viewModel, node: node)
+                    }
                 }
             }
             .padding(.horizontal, 20)
@@ -139,6 +169,24 @@ struct LearningQuizStepView: View {
         case .advance:
             viewModel.moveForward()
         case .dismiss:
+            dismiss()
+        }
+    }
+
+    private func completeTask() {
+        guard !didApplyCompletion else {
+            dismiss()
+            return
+        }
+
+        didApplyCompletion = true
+
+        if let update = onComplete() {
+            canContinueAfterStreak = false
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.86)) {
+                streakUpdate = update
+            }
+        } else {
             dismiss()
         }
     }

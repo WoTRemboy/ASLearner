@@ -30,6 +30,7 @@ struct MockGamificationService: GamificationServiceProtocol {
             updatedProgress.completedLessonIDs.insert(lessonID)
         }
 
+        let streakUpdate = updateDailyStreak(for: &updatedProgress)
         let unlocked = unlockAchievements(for: updatedProgress)
         updatedProgress.unlockedAchievementIDs.formUnion(unlocked.map(\.id))
 
@@ -37,6 +38,7 @@ struct MockGamificationService: GamificationServiceProtocol {
             updatedProgress: updatedProgress,
             gainedXP: gainedXP,
             didLevelUp: updatedProgress.level > oldLevel,
+            streakUpdate: streakUpdate,
             unlockedAchievements: unlocked,
             message: "Great work. Gesture accepted and progress updated."
         )
@@ -52,6 +54,7 @@ struct MockGamificationService: GamificationServiceProtocol {
         updatedProgress.level = (updatedProgress.xp / 100) + 1
         updatedProgress.quizScores.append(score)
 
+        let streakUpdate = updateDailyStreak(for: &updatedProgress)
         let unlocked = unlockAchievements(for: updatedProgress)
         updatedProgress.unlockedAchievementIDs.formUnion(unlocked.map(\.id))
 
@@ -59,6 +62,7 @@ struct MockGamificationService: GamificationServiceProtocol {
             updatedProgress: updatedProgress,
             gainedXP: gainedXP,
             didLevelUp: updatedProgress.level > oldLevel,
+            streakUpdate: streakUpdate,
             unlockedAchievements: unlocked,
             message: "Quiz completed with \(correctAnswers)/\(totalQuestions) correct answers."
         )
@@ -85,6 +89,7 @@ struct MockGamificationService: GamificationServiceProtocol {
             }
         }
 
+        let streakUpdate = updateDailyStreak(for: &updatedProgress)
         let unlocked = unlockAchievements(for: updatedProgress)
         updatedProgress.unlockedAchievementIDs.formUnion(unlocked.map(\.id))
 
@@ -92,8 +97,39 @@ struct MockGamificationService: GamificationServiceProtocol {
             updatedProgress: updatedProgress,
             gainedXP: gainedXP,
             didLevelUp: updatedProgress.level > oldLevel,
+            streakUpdate: streakUpdate,
             unlockedAchievements: unlocked,
             message: isAlreadyCompleted ? "Step is already completed." : "Learning step completed. Progress updated."
+        )
+    }
+
+    private func updateDailyStreak(for progress: inout UserProgressModel, now: Date = .now) -> DayStreakUpdate? {
+        let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: now)
+
+        if let lastStreakDate = progress.lastStreakDate,
+           calendar.isDate(lastStreakDate, inSameDayAs: todayStart) {
+            return nil
+        }
+
+        let previousStreak: Int
+
+        if let lastStreakDate = progress.lastStreakDate,
+           let yesterdayStart = calendar.date(byAdding: .day, value: -1, to: todayStart),
+           calendar.isDate(lastStreakDate, inSameDayAs: yesterdayStart) {
+            previousStreak = progress.streak
+            progress.streak += 1
+        } else {
+            previousStreak = 0
+            progress.streak = 1
+        }
+
+        progress.lastStreakDate = todayStart
+
+        return DayStreakUpdate(
+            previousStreak: previousStreak,
+            currentStreak: progress.streak,
+            date: todayStart
         )
     }
 

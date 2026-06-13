@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct LiveGestureCameraPanel: View {
+    private let completionConfidenceThreshold = GestureRecognitionConfiguration.mediaPipeDefault.exerciseCompletionThreshold
+
     @EnvironmentObject private var appViewModel: AppViewModel
     @StateObject private var recognitionViewModel: LiveGestureRecognitionViewModel
     @State private var didNotifyRecognized = false
@@ -149,7 +151,12 @@ struct LiveGestureCameraPanel: View {
     }
 
     private func handleRecognitionResult(_ result: GestureRecognitionResult?) {
-        guard result?.status == .recognized, !didNotifyRecognized else { return }
+        guard let result,
+              result.status == .recognized,
+              result.confidence >= completionConfidenceThreshold,
+              !didNotifyRecognized else {
+            return
+        }
 
         didNotifyRecognized = true
 

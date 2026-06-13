@@ -33,7 +33,6 @@ struct StatisticsView: View {
                 }
                 .padding(.bottom, 28)
             }
-            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.StatisticsPage.title)
         .navigationBarTitleDisplayMode(.large)

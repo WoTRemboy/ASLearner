@@ -11,11 +11,14 @@ struct LearningGesturePracticeView: View {
     @StateObject private var session = LearningTaskSessionViewModel(pageCount: 3)
 
     let node: LearningNode
-    let onComplete: () -> Void
+    let onComplete: () -> DayStreakUpdate?
 
     @State private var didRecognizeGesture = false
     @State private var cameraStopRequest = 0
     @State private var pendingCameraStopAction: GesturePracticeCameraStopAction?
+    @State private var streakUpdate: DayStreakUpdate?
+    @State private var canContinueAfterStreak = false
+    @State private var didApplyCompletion = false
 
     var body: some View {
         ZStack {
@@ -28,11 +31,18 @@ struct LearningGesturePracticeView: View {
                 .padding(.vertical, 12)
         }
         .safeAreaInset(edge: .bottom) {
-            if session.isResultPage {
-                LearningTaskResultButton {
-                    onComplete()
+            if streakUpdate != nil {
+                LearningTaskResultButton(
+                    title: Texts.LearningFlowPage.continueButton,
+                    isEnabled: canContinueAfterStreak
+                ) {
                     dismiss()
                 }
+            } else if session.isResultPage {
+                LearningTaskResultButton(
+                    isEnabled: session.isShowingResultContent,
+                    action: completeTask
+                )
             } else {
                 LearningTaskBottomControls(
                     timeString: session.timeString,
@@ -47,6 +57,17 @@ struct LearningGesturePracticeView: View {
         }
         .navigationTitle(node.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if shouldShowSkipButton {
+                ToolbarItem(placement: .topBarTrailing) {
+                    SkipGestureToolbarButton {
+                        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+                            didRecognizeGesture = true
+                        }
+                    }
+                }
+            }
+        }
         .onAppear {
             session.startTimer()
         }
@@ -70,6 +91,10 @@ struct LearningGesturePracticeView: View {
         appViewModel.gesture(for: node.gestureId ?? .hello)
     }
 
+    private var shouldShowSkipButton: Bool {
+        session.currentPageIndex == 1 && !didRecognizeGesture && streakUpdate == nil
+    }
+
     private var animatedPageContent: some View {
         ZStack {
             ForEach([session.currentPageID], id: \.self) { _ in
@@ -89,7 +114,14 @@ struct LearningGesturePracticeView: View {
     private var pageContent: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 22) {
-                switch session.currentPageIndex {
+                if let streakUpdate {
+                    LearningStreakCelebrationPage(update: streakUpdate) {
+                        withAnimation(.spring(response: 0.34, dampingFraction: 0.78)) {
+                            canContinueAfterStreak = true
+                        }
+                    }
+                } else {
+                    switch session.currentPageIndex {
                 case 0:
                     LearningTaskReferencePage(
                         node: node,
@@ -113,6 +145,7 @@ struct LearningGesturePracticeView: View {
                         timeString: session.timeString,
                         systemImage: "hand.raised.fill"
                     )
+                    }
                 }
             }
             .padding(.horizontal, 20)
@@ -186,6 +219,24 @@ struct LearningGesturePracticeView: View {
         case .advance:
             session.moveForward(canMoveForward: canMoveForward)
         case .dismiss:
+            dismiss()
+        }
+    }
+
+    private func completeTask() {
+        guard !didApplyCompletion else {
+            dismiss()
+            return
+        }
+
+        didApplyCompletion = true
+
+        if let update = onComplete() {
+            canContinueAfterStreak = false
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.86)) {
+                streakUpdate = update
+            }
+        } else {
             dismiss()
         }
     }

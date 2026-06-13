@@ -45,21 +45,27 @@ final class AppViewModel: ObservableObject {
         GestureRepository.gesture(for: type)
     }
 
-    func applyGestureAward(for gesture: GestureType, lessonID: String?) {
+    @discardableResult
+    func applyGestureAward(for gesture: GestureType, lessonID: String?) -> GamificationUpdate {
         let update = container.gamificationService.awardCorrectGesture(gesture, progress: progress, lessonID: lessonID)
         progress = update.updatedProgress
         latestUpdate = update
+        return update
     }
 
-    func applyQuizAward(correctAnswers: Int, totalQuestions: Int) {
+    @discardableResult
+    func applyQuizAward(correctAnswers: Int, totalQuestions: Int) -> GamificationUpdate {
         let update = container.gamificationService.awardQuiz(correctAnswers: correctAnswers, totalQuestions: totalQuestions, progress: progress)
         progress = update.updatedProgress
         latestUpdate = update
+        return update
     }
 
-    func applyLearningNodeAward(_ node: LearningNode) {
+    @discardableResult
+    func applyLearningNodeAward(_ node: LearningNode) -> GamificationUpdate {
         let update = container.gamificationService.awardLearningNode(node, progress: progress)
         progress = update.updatedProgress
         latestUpdate = update
+        return update
     }
 }

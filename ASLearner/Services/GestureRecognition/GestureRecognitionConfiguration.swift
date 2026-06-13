@@ -9,6 +9,7 @@ struct GestureRecognitionConfiguration {
     let minTrackingConfidence: Float
     let lowConfidenceThreshold: Double
     let recognizedThreshold: Double
+    let exerciseCompletionThreshold: Double
 
     static let mediaPipeDefault = GestureRecognitionConfiguration(
         modelResourceName: "gesture_recognizer",
@@ -18,6 +19,7 @@ struct GestureRecognitionConfiguration {
         minHandPresenceConfidence: 0.55,
         minTrackingConfidence: 0.5,
         lowConfidenceThreshold: 0.45,
-        recognizedThreshold: 0.75
+        recognizedThreshold: 0.75,
+        exerciseCompletionThreshold: 0.9
     )
 }

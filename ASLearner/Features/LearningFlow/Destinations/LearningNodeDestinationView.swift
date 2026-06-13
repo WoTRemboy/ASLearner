@@ -2,7 +2,7 @@ import SwiftUI
 
 struct LearningNodeDestinationView: View {
     let node: LearningNode
-    let onComplete: () -> Void
+    let onComplete: () -> DayStreakUpdate?
 
     var body: some View {
         switch node.type {

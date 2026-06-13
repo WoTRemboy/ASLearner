@@ -5,9 +5,12 @@ struct LearningCheckpointView: View {
     @StateObject private var session = LearningTaskSessionViewModel(pageCount: 3)
 
     let node: LearningNode
-    let onComplete: () -> Void
+    let onComplete: () -> DayStreakUpdate?
 
     @State private var completedChecks: Set<String> = []
+    @State private var streakUpdate: DayStreakUpdate?
+    @State private var canContinueAfterStreak = false
+    @State private var didApplyCompletion = false
 
     private let checks = [
         "Explain what sign language is",
@@ -27,11 +30,19 @@ struct LearningCheckpointView: View {
                 .padding(.vertical, 12)
         }
         .safeAreaInset(edge: .bottom) {
-            if session.isResultPage {
-                LearningTaskResultButton(title: Texts.LearningFlowPage.completeCheckpoint) {
-                    onComplete()
+            if streakUpdate != nil {
+                LearningTaskResultButton(
+                    title: Texts.LearningFlowPage.continueButton,
+                    isEnabled: canContinueAfterStreak
+                ) {
                     dismiss()
                 }
+            } else if session.isResultPage {
+                LearningTaskResultButton(
+                    title: Texts.LearningFlowPage.completeCheckpoint,
+                    isEnabled: session.isShowingResultContent,
+                    action: completeTask
+                )
             } else {
                 LearningTaskBottomControls(
                     timeString: session.timeString,
@@ -82,7 +93,14 @@ struct LearningCheckpointView: View {
     private var pageContent: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 22) {
-                switch session.currentPageIndex {
+                if let streakUpdate {
+                    LearningStreakCelebrationPage(update: streakUpdate) {
+                        withAnimation(.spring(response: 0.34, dampingFraction: 0.78)) {
+                            canContinueAfterStreak = true
+                        }
+                    }
+                } else {
+                    switch session.currentPageIndex {
                 case 0:
                     LearningTaskReferencePage(
                         node: node,
@@ -102,6 +120,7 @@ struct LearningCheckpointView: View {
                         timeString: session.timeString,
                         systemImage: "flag.checkered"
                     )
+                    }
                 }
             }
             .padding(.horizontal, 20)
@@ -129,6 +148,24 @@ struct LearningCheckpointView: View {
                     checkButton(check)
                 }
             }
+        }
+    }
+
+    private func completeTask() {
+        guard !didApplyCompletion else {
+            dismiss()
+            return
+        }
+
+        didApplyCompletion = true
+
+        if let update = onComplete() {
+            canContinueAfterStreak = false
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.86)) {
+                streakUpdate = update
+            }
+        } else {
+            dismiss()
         }
     }
 
