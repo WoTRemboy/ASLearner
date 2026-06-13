@@ -50,6 +50,7 @@ final class AppViewModel: ObservableObject {
         let update = container.gamificationService.awardCorrectGesture(gesture, progress: progress, lessonID: lessonID)
         progress = update.updatedProgress
         latestUpdate = update
+        presentAchievementToasts(from: update)
         return update
     }
 
@@ -58,6 +59,7 @@ final class AppViewModel: ObservableObject {
         let update = container.gamificationService.awardQuiz(correctAnswers: correctAnswers, totalQuestions: totalQuestions, progress: progress)
         progress = update.updatedProgress
         latestUpdate = update
+        presentAchievementToasts(from: update)
         return update
     }
 
@@ -66,6 +68,15 @@ final class AppViewModel: ObservableObject {
         let update = container.gamificationService.awardLearningNode(node, progress: progress)
         progress = update.updatedProgress
         latestUpdate = update
+        presentAchievementToasts(from: update)
         return update
+    }
+
+    private func presentAchievementToasts(from update: GamificationUpdate) {
+        guard !update.unlockedAchievements.isEmpty else { return }
+
+        for achievement in update.unlockedAchievements {
+            AchievementToastCenter.shared.present(achievement: achievement)
+        }
     }
 }
