@@ -1,5 +1,10 @@
 import SwiftUI
 
+private enum GesturePracticeCameraStopAction {
+    case advance
+    case dismiss
+}
+
 struct LearningGesturePracticeView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var appViewModel: AppViewModel
@@ -9,6 +14,8 @@ struct LearningGesturePracticeView: View {
     let onComplete: () -> Void
 
     @State private var didRecognizeGesture = false
+    @State private var cameraStopRequest = 0
+    @State private var pendingCameraStopAction: GesturePracticeCameraStopAction?
 
     var body: some View {
         ZStack {
@@ -30,9 +37,11 @@ struct LearningGesturePracticeView: View {
                 LearningTaskBottomControls(
                     timeString: session.timeString,
                     elapsedSeconds: session.elapsedSeconds,
-                    canMoveForward: canMoveForward,
-                    close: { dismiss() },
-                    moveForward: { session.moveForward(canMoveForward: canMoveForward) }
+                    canMoveForward: canMoveForward && pendingCameraStopAction == nil,
+                    close: {
+                        requestCameraStop(.dismiss)
+                    },
+                    moveForward: advanceAfterCameraStops
                 )
             }
         }
@@ -115,7 +124,14 @@ struct LearningGesturePracticeView: View {
 
     private var practicePage: some View {
         VStack(alignment: .leading, spacing: 22) {
-            cameraPlaceholder
+            LiveGestureCameraPanel(
+                gesture: gesture,
+                stopRequest: cameraStopRequest
+            ) {
+                didRecognizeGesture = true
+            } onStopCompleted: {
+                performPendingCameraStopAction()
+            }
 
             VStack(alignment: .leading, spacing: 10) {
                 Text(gesture.englishName)
@@ -132,45 +148,45 @@ struct LearningGesturePracticeView: View {
                 if didRecognizeGesture {
                     Label(Texts.LearningFlowPage.gestureAccepted, systemImage: "checkmark.seal.fill")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(LiquidGlassTheme.success)
-                        .transition(.blurReplace)
+                    .foregroundStyle(LiquidGlassTheme.success)
+                    .transition(.blurReplace)
                 }
             }
-
-            Button {
-                withAnimation(.spring(response: 0.42, dampingFraction: 0.8)) {
-                    didRecognizeGesture = true
-                }
-            } label: {
-                Label(Texts.LearningFlowPage.simulateGesture, systemImage: "camera.viewfinder")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 15)
-            }
-            .buttonStyle(.glassProminent)
-            .tint(didRecognizeGesture ? LiquidGlassTheme.success : LiquidGlassTheme.accent)
         }
     }
 
-    private var cameraPlaceholder: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .fill(Color.black.opacity(0.22))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 26, style: .continuous)
-                        .stroke(Color.white.opacity(0.22), lineWidth: 1)
-                }
-                .aspectRatio(4 / 3, contentMode: .fit)
+    private func advanceAfterCameraStops() {
+        guard canMoveForward, pendingCameraStopAction == nil else { return }
 
-            VStack(spacing: 12) {
-                Image(systemName: didRecognizeGesture ? "checkmark.circle.fill" : "camera.viewfinder")
-                    .font(.system(size: 52, weight: .semibold))
-                    .foregroundStyle(didRecognizeGesture ? LiquidGlassTheme.success : LiquidGlassTheme.accent)
+        if session.currentPageIndex == 1 {
+            requestCameraStop(.advance)
+        } else {
+            session.moveForward(canMoveForward: canMoveForward)
+        }
+    }
 
-                Text(didRecognizeGesture ? "Recognized \(gesture.englishName)" : Texts.CameraPage.mockPreview)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white)
-            }
+    private func requestCameraStop(_ action: GesturePracticeCameraStopAction) {
+        guard session.currentPageIndex == 1 else {
+            perform(action)
+            return
+        }
+
+        pendingCameraStopAction = action
+        cameraStopRequest += 1
+    }
+
+    private func performPendingCameraStopAction() {
+        guard let action = pendingCameraStopAction else { return }
+        pendingCameraStopAction = nil
+        perform(action)
+    }
+
+    private func perform(_ action: GesturePracticeCameraStopAction) {
+        switch action {
+        case .advance:
+            session.moveForward(canMoveForward: canMoveForward)
+        case .dismiss:
+            dismiss()
         }
     }
 }

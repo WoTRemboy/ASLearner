@@ -5,10 +5,14 @@ struct CameraRecognitionView: View {
     let targetGesture: GestureType
     let lessonID: String?
 
-    @State private var result: GestureRecognitionResult?
-    @State private var isScanning = false
-    @State private var feedback = Texts.CameraPage.initialFeedback
+    @StateObject private var recognitionViewModel: LiveGestureRecognitionViewModel
     @State private var didAward = false
+
+    init(targetGesture: GestureType, lessonID: String?) {
+        self.targetGesture = targetGesture
+        self.lessonID = lessonID
+        _recognitionViewModel = StateObject(wrappedValue: LiveGestureRecognitionViewModel(targetGesture: targetGesture))
+    }
 
     private var target: GestureModel {
         appViewModel.gesture(for: targetGesture)
@@ -27,15 +31,29 @@ struct CameraRecognitionView: View {
                         .padding(.horizontal, 20)
 
                     LiquidGlassButton(
-                        title: isScanning ? Texts.CameraPage.scanning : Texts.CameraPage.runRecognition,
-                        systemImage: isScanning ? "waveform" : "viewfinder",
-                        tint: isScanning ? LiquidGlassTheme.warning : LiquidGlassTheme.accent
+                        title: recognitionViewModel.actionTitle,
+                        systemImage: recognitionViewModel.isScanning ? "stop.circle.fill" : "viewfinder",
+                        tint: recognitionViewModel.isScanning ? LiquidGlassTheme.warning : LiquidGlassTheme.accent
                     ) {
-                        runRecognition()
+                        recognitionViewModel.toggleScanning()
                     }
-                    .disabled(isScanning)
-                    .opacity(isScanning ? 0.72 : 1)
+                    .disabled(recognitionViewModel.isPreparing)
+                    .opacity(recognitionViewModel.isPreparing ? 0.72 : 1)
                     .padding(.horizontal, 20)
+
+                    if recognitionViewModel.errorMessage != nil {
+                        Button {
+                            recognitionViewModel.runFallbackRecognition()
+                        } label: {
+                            Label(Texts.CameraPage.fallbackRecognition, systemImage: "wand.and.sparkles")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 15)
+                        }
+                        .buttonStyle(.glassProminent)
+                        .tint(LiquidGlassTheme.secondaryAccent)
+                        .padding(.horizontal, 20)
+                    }
                 }
                 .padding(.bottom, 28)
             }
@@ -43,6 +61,15 @@ struct CameraRecognitionView: View {
         }
         .navigationTitle(Texts.CameraPage.title)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            recognitionViewModel.configure(service: appViewModel.container.gestureRecognitionService)
+        }
+        .onDisappear {
+            recognitionViewModel.stop()
+        }
+        .onChange(of: recognitionViewModel.result) { _, newValue in
+            handleRecognitionResult(newValue)
+        }
     }
 
     private var cameraPreview: some View {
@@ -56,6 +83,10 @@ struct CameraRecognitionView: View {
                         .stroke(Color.white.opacity(0.32), lineWidth: 1)
                 }
 
+            CameraPreviewView(session: recognitionViewModel.cameraSession)
+                .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                .opacity(recognitionViewModel.errorMessage == nil ? 1 : 0.16)
+
             VStack(spacing: 20) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
@@ -64,20 +95,23 @@ struct CameraRecognitionView: View {
 
                     Image(systemName: "hand.raised.fingers.spread.fill")
                         .font(.system(size: 82, weight: .semibold))
-                        .foregroundStyle(isScanning ? LiquidGlassTheme.warning : LiquidGlassTheme.accent)
-                        .symbolEffect(.pulse, value: isScanning)
+                        .foregroundStyle(recognitionViewModel.isScanning ? LiquidGlassTheme.warning : LiquidGlassTheme.accent)
+                        .symbolEffect(.pulse, value: recognitionViewModel.isScanning)
+                        .opacity(recognitionViewModel.isScanning ? 0.22 : 0.82)
                 }
 
-                Text(feedback)
+                Text(recognitionViewModel.feedback)
                     .font(.subheadline.weight(.medium))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(LiquidGlassTheme.foreground)
                     .padding(.horizontal, 18)
+                    .padding(.vertical, 10)
+                    .background(.black.opacity(0.18), in: Capsule())
             }
 
             VStack {
                 HStack {
-                    Label(Texts.CameraPage.mockPreview, systemImage: "camera.metering.center.weighted")
+                    Label(recognitionViewModel.errorMessage == nil ? Texts.CameraPage.livePreview : Texts.CameraPage.cameraUnavailable, systemImage: "camera.metering.center.weighted")
                         .font(.caption.bold())
                         .foregroundStyle(.white)
                         .padding(.horizontal, 10)
@@ -99,7 +133,7 @@ struct CameraRecognitionView: View {
                         .font(.headline)
                         .foregroundStyle(LiquidGlassTheme.foreground)
                     Spacer()
-                    Text(result?.status.title ?? Texts.CameraPage.waiting)
+                    Text(recognitionViewModel.result?.status.title ?? Texts.CameraPage.waiting)
                         .font(.caption.bold())
                         .foregroundStyle(statusColor)
                         .padding(.horizontal, 10)
@@ -108,7 +142,7 @@ struct CameraRecognitionView: View {
                 }
 
                 HStack(spacing: 12) {
-                    RecognitionMetric(title: Texts.CameraPage.gesture, value: result?.gestureName ?? target.englishName, systemImage: target.symbolName, tint: LiquidGlassTheme.accent)
+                    RecognitionMetric(title: Texts.CameraPage.gesture, value: recognitionViewModel.result?.gestureName ?? target.englishName, systemImage: target.symbolName, tint: LiquidGlassTheme.accent)
                     RecognitionMetric(title: Texts.CameraPage.confidence, value: confidenceText, systemImage: "gauge.with.dots.needle.67percent", tint: statusColor)
                 }
 
@@ -123,12 +157,12 @@ struct CameraRecognitionView: View {
     }
 
     private var confidenceText: String {
-        guard let confidence = result?.confidence else { return "--" }
+        guard let confidence = recognitionViewModel.result?.confidence else { return "--" }
         return "\(Int(confidence * 100))%"
     }
 
     private var statusColor: Color {
-        switch result?.status {
+        switch recognitionViewModel.result?.status {
         case .recognized:
             LiquidGlassTheme.success
         case .lowConfidence:
@@ -140,28 +174,13 @@ struct CameraRecognitionView: View {
         }
     }
 
-    private func runRecognition() {
-        guard !isScanning else { return }
-        isScanning = true
-        feedback = Texts.CameraPage.analyzing
+    private func handleRecognitionResult(_ recognitionResult: GestureRecognitionResult?) {
+        guard recognitionResult?.status == .recognized, !didAward else { return }
 
-        Task {
-            let recognitionResult = await appViewModel.container.gestureRecognitionService.recognize(target: targetGesture)
-            result = recognitionResult
-            isScanning = false
+        appViewModel.applyGestureAward(for: targetGesture, lessonID: lessonID)
 
-            switch recognitionResult.status {
-            case .recognized:
-                feedback = Texts.CameraPage.accepted
-                if !didAward {
-                    appViewModel.applyGestureAward(for: targetGesture, lessonID: lessonID)
-                    didAward = true
-                }
-            case .lowConfidence:
-                feedback = Texts.CameraPage.lowConfidence
-            case .notDetected:
-                feedback = Texts.CameraPage.notDetected
-            }
+        withAnimation(.spring(response: 0.42, dampingFraction: 0.82)) {
+            didAward = true
         }
     }
 }
