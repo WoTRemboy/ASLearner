@@ -7,7 +7,7 @@ struct AchievementsView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
                     ForEach(appViewModel.achievements) { achievement in
                         AchievementBadge(achievement: achievement)
@@ -16,6 +16,7 @@ struct AchievementsView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.AchievementsPage.title)
         .navigationBarTitleDisplayMode(.inline)

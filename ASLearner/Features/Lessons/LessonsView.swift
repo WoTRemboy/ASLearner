@@ -7,7 +7,7 @@ struct LessonsView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     ForEach(appViewModel.lessons) { lesson in
                         NavigationLink {
@@ -25,6 +25,7 @@ struct LessonsView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.LessonsPage.title)
         .navigationBarTitleDisplayMode(.large)
@@ -44,7 +45,7 @@ struct LessonDetailView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 18) {
                     LiquidGlassCard {
                         VStack(alignment: .leading, spacing: 14) {
@@ -87,6 +88,7 @@ struct LessonDetailView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(lesson.title)
         .navigationBarTitleDisplayMode(.inline)

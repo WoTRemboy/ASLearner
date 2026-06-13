@@ -56,4 +56,10 @@ final class AppViewModel: ObservableObject {
         progress = update.updatedProgress
         latestUpdate = update
     }
+
+    func applyLearningNodeAward(_ node: LearningNode) {
+        let update = container.gamificationService.awardLearningNode(node, progress: progress)
+        progress = update.updatedProgress
+        latestUpdate = update
+    }
 }

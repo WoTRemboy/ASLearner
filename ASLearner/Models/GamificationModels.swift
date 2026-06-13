@@ -5,20 +5,20 @@ struct UserProgressModel: Equatable {
     var level: Int
     var streak: Int
     var completedLessonIDs: Set<String>
+    var completedLearningNodeIDs: Set<String>
     var recognizedGestures: Set<GestureType>
     var quizScores: [QuizScore]
     var unlockedAchievementIDs: Set<String>
 
     static let demo = UserProgressModel(
-        xp: 80,
+        xp: 0,
         level: 1,
-        streak: 3,
-        completedLessonIDs: ["basics-hello"],
-        recognizedGestures: [.hello],
-        quizScores: [
-            QuizScore(date: .now.addingTimeInterval(-86_400), correctAnswers: 3, totalQuestions: 5)
-        ],
-        unlockedAchievementIDs: ["first-lesson"]
+        streak: 0,
+        completedLessonIDs: [],
+        completedLearningNodeIDs: [],
+        recognizedGestures: [],
+        quizScores: [],
+        unlockedAchievementIDs: []
     )
 
     var levelProgress: Double {
@@ -54,4 +54,3 @@ struct LessonModel: Identifiable, Hashable {
     let estimatedMinutes: Int
     let accentSymbolName: String
 }
-

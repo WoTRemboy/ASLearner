@@ -3,39 +3,28 @@ import SwiftUI
 struct AppTabView: View {
     var body: some View {
         TabView {
-            NavigationStack {
-                HomeView()
-            }
-            .tabItem {
-                Label(Texts.Tabbar.home, systemImage: "house.fill")
-            }
-
-            NavigationStack {
-                LessonsView()
-            }
-            .tabItem {
-                Label(Texts.Tabbar.lessons, systemImage: "play.rectangle.fill")
+            Tab(Texts.Tabbar.path, systemImage: "graduationcap.fill") {
+                NavigationStack {
+                    LearningFlowView()
+                }
             }
 
-            NavigationStack {
-                QuizView()
-            }
-            .tabItem {
-                Label(Texts.Tabbar.quiz, systemImage: "questionmark.app.fill")
-            }
-
-            NavigationStack {
-                DictionaryView()
-            }
-            .tabItem {
-                Label(Texts.Tabbar.dictionary, systemImage: "book.closed.fill")
+            Tab(Texts.Tabbar.profile, systemImage: "person.crop.circle.fill") {
+                NavigationStack {
+                    ProfileView()
+                }
             }
 
-            NavigationStack {
-                StatisticsView()
+            Tab(Texts.Tabbar.settings, systemImage: "gearshape.fill") {
+                NavigationStack {
+                    SettingsView()
+                }
             }
-            .tabItem {
-                Label(Texts.Tabbar.stats, systemImage: "chart.xyaxis.line")
+
+            Tab(Texts.Tabbar.dictionary, systemImage: "book.closed.fill", role: .search) {
+                NavigationStack {
+                    DictionaryView()
+                }
             }
         }
         .tint(LiquidGlassTheme.accent)

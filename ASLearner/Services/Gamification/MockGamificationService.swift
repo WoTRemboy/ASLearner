@@ -64,6 +64,39 @@ struct MockGamificationService: GamificationServiceProtocol {
         )
     }
 
+    func awardLearningNode(_ node: LearningNode, progress: UserProgressModel) -> GamificationUpdate {
+        var updatedProgress = progress
+        let oldLevel = updatedProgress.level
+        let isAlreadyCompleted = updatedProgress.completedLearningNodeIDs.contains(node.id)
+        let gainedXP = isAlreadyCompleted ? 0 : node.xpReward
+
+        if !isAlreadyCompleted {
+            updatedProgress.xp += gainedXP
+            updatedProgress.level = (updatedProgress.xp / 100) + 1
+            updatedProgress.completedLearningNodeIDs.insert(node.id)
+            updatedProgress.completedLessonIDs.insert(node.id)
+
+            if let gesture = node.gestureId, node.type == .gesturePractice {
+                updatedProgress.recognizedGestures.insert(gesture)
+            }
+
+            if node.type == .quiz || node.type == .checkpoint {
+                updatedProgress.quizScores.append(QuizScore(date: .now, correctAnswers: 1, totalQuestions: 1))
+            }
+        }
+
+        let unlocked = unlockAchievements(for: updatedProgress)
+        updatedProgress.unlockedAchievementIDs.formUnion(unlocked.map(\.id))
+
+        return GamificationUpdate(
+            updatedProgress: updatedProgress,
+            gainedXP: gainedXP,
+            didLevelUp: updatedProgress.level > oldLevel,
+            unlockedAchievements: unlocked,
+            message: isAlreadyCompleted ? "Step is already completed." : "Learning step completed. Progress updated."
+        )
+    }
+
     private func unlockAchievements(for progress: UserProgressModel) -> [AchievementModel] {
         achievementTemplates.compactMap { template in
             guard !progress.unlockedAchievementIDs.contains(template.id) else { return nil }
@@ -91,4 +124,3 @@ struct MockGamificationService: GamificationServiceProtocol {
         }
     }
 }
-

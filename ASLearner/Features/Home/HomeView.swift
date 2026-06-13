@@ -7,7 +7,7 @@ struct HomeView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {
                     progressHeader
                         .padding(.horizontal, 20)
@@ -23,6 +23,7 @@ struct HomeView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.HomePage.title)
         .navigationBarTitleDisplayMode(.large)

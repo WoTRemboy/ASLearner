@@ -14,7 +14,7 @@ struct GesturePracticeView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     LiquidGlassCard {
                         VStack(alignment: .leading, spacing: 18) {
@@ -67,6 +67,7 @@ struct GesturePracticeView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle("\(Texts.PracticePage.titlePrefix) \(gesture.englishName)")
         .navigationBarTitleDisplayMode(.inline)

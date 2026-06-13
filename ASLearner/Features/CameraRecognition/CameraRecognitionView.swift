@@ -18,7 +18,7 @@ struct CameraRecognitionView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     cameraPreview
                         .padding(.horizontal, 20)
@@ -39,6 +39,7 @@ struct CameraRecognitionView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.CameraPage.title)
         .navigationBarTitleDisplayMode(.inline)

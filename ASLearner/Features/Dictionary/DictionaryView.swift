@@ -17,42 +17,50 @@ struct DictionaryView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
-                    searchField
-                        .padding(.horizontal, 20)
-
-                    ForEach(filteredGestures) { gesture in
-                        NavigationLink {
-                            DictionaryDetailView(gesture: gesture)
-                        } label: {
-                            dictionaryRow(gesture)
+                    if filteredGestures.isEmpty {
+                        emptyState
+                            .padding(.top, 60)
+                    } else {
+                        ForEach(filteredGestures) { gesture in
+                            NavigationLink {
+                                DictionaryDetailView(gesture: gesture)
+                            } label: {
+                                dictionaryRow(gesture)
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.horizontal, 20)
                         }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal, 20)
                     }
                 }
+                .padding(.top, 8)
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.DictionaryPage.title)
         .navigationBarTitleDisplayMode(.large)
+        .toolbarRole(.navigationStack)
+        .searchable(
+            text: $searchText,
+            placement: .toolbarPrincipal,
+            prompt: Texts.DictionaryPage.search
+        )
     }
 
-    private var searchField: some View {
-        HStack {
+    private var emptyState: some View {
+        VStack(spacing: 14) {
             Image(systemName: "magnifyingglass")
-            TextField(Texts.DictionaryPage.search, text: $searchText)
-                .textInputAutocapitalization(.never)
+                .font(.system(size: 48, weight: .semibold))
+                .foregroundStyle(LiquidGlassTheme.mutedForeground)
+
+            Text(Texts.DictionaryPage.emptySearch)
+                .font(Font.largeTitle3(.semibold))
+                .foregroundStyle(LiquidGlassTheme.mutedForeground)
         }
-        .foregroundStyle(LiquidGlassTheme.foreground)
-        .padding(14)
-        .glassEffect(.regular.interactive().tint(LiquidGlassTheme.glassTint), in: .rect(cornerRadius: 18))
-        .overlay {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.white.opacity(0.22), lineWidth: 1)
-        }
-        .padding(.top, 2)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 20)
     }
 
     private func dictionaryRow(_ gesture: GestureModel) -> some View {
@@ -89,7 +97,7 @@ struct DictionaryDetailView: View {
         ZStack {
             LiquidGlassBackground()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     LiquidGlassCard {
                         VStack(alignment: .leading, spacing: 18) {
@@ -109,6 +117,7 @@ struct DictionaryDetailView: View {
                 }
                 .padding(.bottom, 28)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(gesture.englishName)
         .navigationBarTitleDisplayMode(.inline)
