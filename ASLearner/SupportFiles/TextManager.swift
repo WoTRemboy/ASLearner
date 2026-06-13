@@ -154,6 +154,8 @@ final class Texts {
         static let category = "Категория"
         static let difficulty = "Сложность"
         static let howToPerform = "Как выполнить"
+        static let practiceGesture = "Тренировать жест"
+        static let closePractice = "Закрыть тренировку"
     }
 
     enum AchievementsPage {

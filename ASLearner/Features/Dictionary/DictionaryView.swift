@@ -28,6 +28,7 @@ struct DictionaryView: View {
                                 DictionaryDetailView(gesture: gesture)
                             } label: {
                                 dictionaryRow(gesture)
+                                    .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                             }
                             .buttonStyle(.plain)
                             .padding(.horizontal, 20)
@@ -87,6 +88,7 @@ struct DictionaryView: View {
                 Image(systemName: "chevron.right")
                     .foregroundStyle(LiquidGlassTheme.mutedForeground)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -101,7 +103,7 @@ struct DictionaryView: View {
 }
 
 struct DictionaryDetailView: View {
-    @EnvironmentObject private var appViewModel: AppViewModel
+    @State private var isShowingPractice = false
 
     let gesture: GestureModel
 
@@ -113,19 +115,24 @@ struct DictionaryDetailView: View {
                 VStack(spacing: 18) {
                     LiquidGlassCard {
                         VStack(alignment: .leading, spacing: 18) {
-                            GestureGalleryIcon(
-                                gesture: gesture,
-                                isUnlocked: isGestureRecognized,
-                                tint: gestureTint,
-                                size: 112
-                            )
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 26)
+                            if Image.GestureScheme.assetName(for: gesture.type) != nil {
+                                GestureSchemeImageView(gesture: gesture.type, widthRatio: 0.72, maxSide: 320)
+                                    .padding(.vertical, 8)
+                            }
 
                             detailRow(title: Texts.DictionaryPage.category, value: gesture.category)
                             detailRow(title: Texts.DictionaryPage.difficulty, value: gesture.difficulty.rawValue)
                             detailRow(title: Texts.DictionaryPage.howToPerform, value: gesture.executionDescription)
                         }
+                    }
+                    .padding(.horizontal, 20)
+
+                    LiquidGlassButton(
+                        title: Texts.DictionaryPage.practiceGesture,
+                        systemImage: "camera.viewfinder",
+                        tint: LiquidGlassTheme.accent
+                    ) {
+                        isShowingPractice = true
                     }
                     .padding(.horizontal, 20)
                 }
@@ -134,6 +141,9 @@ struct DictionaryDetailView: View {
         }
         .navigationTitle(gesture.englishName)
         .navigationBarTitleDisplayMode(.inline)
+        .fullScreenCover(isPresented: $isShowingPractice) {
+            DictionaryGesturePracticeSheet(gesture: gesture)
+        }
     }
 
     private func detailRow(title: String, value: String) -> some View {
@@ -147,13 +157,95 @@ struct DictionaryDetailView: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
+}
 
-    private var isGestureRecognized: Bool {
-        appViewModel.progress.recognizedGestures.contains(gesture.type)
+private struct DictionaryGesturePracticeSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var appViewModel: AppViewModel
+
+    let gesture: GestureModel
+
+    @State private var didRecognizeGesture = false
+    @State private var didAward = false
+    @State private var cameraStopRequest = 0
+    @State private var isWaitingForCameraStop = false
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                LiquidGlassBackground()
+
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 22) {
+                        LiveGestureCameraPanel(
+                            gesture: gesture,
+                            stopRequest: cameraStopRequest
+                        ) {
+                            handleRecognitionAccepted()
+                        } onStopCompleted: {
+                            isWaitingForCameraStop = false
+                            dismiss()
+                        }
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Тренировка «\(gesture.englishName)»")
+                                .font(.system(size: 34, weight: .bold, design: .rounded))
+                                .foregroundStyle(LiquidGlassTheme.foreground)
+
+                            if Image.GestureScheme.assetName(for: gesture.type) != nil {
+                                GestureSchemeImageView(gesture: gesture.type, widthRatio: 0.62, maxSide: 280)
+                                    .padding(.vertical, 6)
+                            }
+
+                            Text(gesture.executionDescription)
+                                .font(.title3)
+                                .fontWeight(.medium)
+                                .lineSpacing(4)
+                                .foregroundStyle(LiquidGlassTheme.mutedForeground)
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            if didRecognizeGesture {
+                                Label(Texts.LearningFlowPage.gestureAccepted, systemImage: "checkmark.seal.fill")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(LiquidGlassTheme.success)
+                                    .transition(.blurReplace)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 12)
+                    .padding(.bottom, 28)
+                }
+                .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
+            }
+            .navigationTitle(gesture.englishName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        closeAfterCameraStops()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .disabled(isWaitingForCameraStop)
+                    .accessibilityLabel(Texts.LearningFlowPage.close)
+                }
+            }
+            .interactiveDismissDisabled(true)
+        }
     }
 
-    private var gestureTint: Color {
-        let index = appViewModel.gestures.firstIndex { $0.id == gesture.id } ?? 0
-        return LiquidGlassGalleryPalette.tint(for: index)
+    private func handleRecognitionAccepted() {
+        didRecognizeGesture = true
+
+        guard !didAward else { return }
+        didAward = true
+        appViewModel.applyGestureAward(for: gesture.type, lessonID: nil)
+    }
+
+    private func closeAfterCameraStops() {
+        guard !isWaitingForCameraStop else { return }
+        isWaitingForCameraStop = true
+        cameraStopRequest += 1
     }
 }

@@ -244,6 +244,11 @@ private struct LearningQuizPracticePage: View {
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(LiquidGlassTheme.foreground)
 
+                if Image.GestureScheme.assetName(for: gesture.type) != nil {
+                    GestureSchemeImageView(gesture: gesture.type, widthRatio: 0.62, maxSide: 280)
+                        .padding(.vertical, 6)
+                }
+
                 Text(gesture.executionDescription)
                     .font(.title3)
                     .fontWeight(.medium)
@@ -297,6 +302,11 @@ private struct LearningQuizQuestionTitle: View {
                 .foregroundStyle(LiquidGlassTheme.foreground)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
+
+            if let gesture = question.gesture, Image.GestureScheme.assetName(for: gesture) != nil {
+                GestureSchemeImageView(gesture: gesture, widthRatio: 0.62, maxSide: 280)
+                    .padding(.top, 2)
+            }
         }
     }
 }

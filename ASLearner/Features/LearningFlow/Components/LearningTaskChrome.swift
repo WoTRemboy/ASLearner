@@ -397,26 +397,7 @@ struct LearningTaskReferencePage: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 28) {
-            Image(systemName: symbolName)
-                .font(.system(size: 58, weight: .bold))
-                .foregroundStyle(.white)
-                .frame(width: 100, height: 100)
-                .background(
-                    LinearGradient(
-                        colors: [
-                            LiquidGlassTheme.accent,
-                            LiquidGlassTheme.secondaryAccent.opacity(0.82)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    in: RoundedRectangle(cornerRadius: 30, style: .continuous)
-                )
-                .overlay {
-                    RoundedRectangle(cornerRadius: 30, style: .continuous)
-                        .stroke(Color.white.opacity(0.42), lineWidth: 1)
-                }
-                .shadow(color: LiquidGlassTheme.accent.opacity(0.24), radius: 26, x: 0, y: 16)
+            headerVisual
 
             VStack(alignment: .leading, spacing: 14) {
                 Text(title)
@@ -453,5 +434,33 @@ struct LearningTaskReferencePage: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 18)
+    }
+
+    @ViewBuilder
+    private var headerVisual: some View {
+        if let gesture = node.gestureId, Image.GestureScheme.assetName(for: gesture) != nil {
+            GestureSchemeImageView(gesture: gesture, widthRatio: 0.68, maxSide: 300)
+        } else {
+            Image(systemName: symbolName)
+                .font(.system(size: 58, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 100, height: 100)
+                .background(
+                    LinearGradient(
+                        colors: [
+                            LiquidGlassTheme.accent,
+                            LiquidGlassTheme.secondaryAccent.opacity(0.82)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    in: RoundedRectangle(cornerRadius: 30, style: .continuous)
+                )
+                .overlay {
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .stroke(Color.white.opacity(0.42), lineWidth: 1)
+                }
+                .shadow(color: LiquidGlassTheme.accent.opacity(0.24), radius: 26, x: 0, y: 16)
+        }
     }
 }

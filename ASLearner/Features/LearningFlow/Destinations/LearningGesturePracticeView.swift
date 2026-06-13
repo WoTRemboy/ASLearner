@@ -171,6 +171,11 @@ struct LearningGesturePracticeView: View {
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(LiquidGlassTheme.foreground)
 
+                if Image.GestureScheme.assetName(for: gesture.type) != nil {
+                    GestureSchemeImageView(gesture: gesture.type, widthRatio: 0.62, maxSide: 280)
+                        .padding(.vertical, 6)
+                }
+
                 Text(gesture.executionDescription)
                     .font(.title3)
                     .fontWeight(.medium)

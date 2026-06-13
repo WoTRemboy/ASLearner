@@ -134,6 +134,27 @@ struct GestureChip: View {
     }
 }
 
+struct GestureSchemeImageView: View {
+    let gesture: GestureType
+    var widthRatio: CGFloat = 0.64
+    var maxSide: CGFloat = 320
+
+    var body: some View {
+        if let image = Image.GestureScheme.image(for: gesture) {
+            image
+                .resizable()
+                .scaledToFit()
+                .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                .containerRelativeFrame(.horizontal) { length, _ in
+                    min(length * widthRatio, maxSide)
+                }
+                .aspectRatio(1, contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .accessibilityHidden(true)
+        }
+    }
+}
+
 enum LiquidGlassGalleryPalette {
     static let tints: [Color] = [
         LiquidGlassTheme.warning,
