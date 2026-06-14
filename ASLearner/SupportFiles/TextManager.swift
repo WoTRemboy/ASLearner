@@ -7,6 +7,7 @@ final class Texts {
 
     enum UserDefaults {
         static let skipOnboarding = "skipOnboarding"
+        static let quizMistakes = "quizMistakes"
     }
 
     enum Tabbar {
@@ -139,6 +140,9 @@ final class Texts {
     enum QuizPage {
         static let title = "Тест"
         static let loading = "Генерируем задания..."
+        static let generationTitle = "Подготовка теста"
+        static let generationSubtitle = "Анализируем пройденный материал и ошибки, затем формируем задания локальной моделью."
+        static let generationCompleted = "Тест готов"
         static let tasks = "заданий"
         static let submitted = "Тест завершён. XP добавлены в общий прогресс."
         static let performed = "Выполнено"

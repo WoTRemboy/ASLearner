@@ -34,9 +34,12 @@ struct LearningQuizTheoryCard: Identifiable, Equatable {
 final class LearningQuizSessionViewModel: ObservableObject {
     let node: LearningNode
     let theoryCards: [LearningQuizTheoryCard]
-    let questions: [QuizQuestion]
 
     @Published var currentPageIndex = 0
+    @Published var questions: [QuizQuestion] = []
+    @Published var isGeneratingQuestions = true
+    @Published var generationProgress = 0.0
+    @Published var currentGenerationStep = 0
     @Published var selectedAnswers: [UUID: QuizAnswer] = [:]
     @Published var didPractice = false
     @Published var elapsedSeconds = 0
@@ -49,7 +52,6 @@ final class LearningQuizSessionViewModel: ObservableObject {
     init(node: LearningNode) {
         self.node = node
         self.theoryCards = LearningQuizSessionViewModel.makeTheoryCards(for: node)
-        self.questions = LearningQuizSessionViewModel.makeQuestions(for: node)
     }
 
     deinit {
@@ -58,11 +60,17 @@ final class LearningQuizSessionViewModel: ObservableObject {
     }
 
     var pages: [LearningQuizPage] {
-        theoryCards.map { .theory($0) } + [.practice] + questions.map { .question($0) } + [.result]
+        guard !isGeneratingQuestions else {
+            return []
+        }
+
+        let questionPages = questions.map { LearningQuizPage.question($0) }
+        return questionPages + [.practice, .result]
     }
 
     var currentPage: LearningQuizPage {
-        pages[min(currentPageIndex, pages.count - 1)]
+        guard !pages.isEmpty else { return .result }
+        return pages[min(currentPageIndex, pages.count - 1)]
     }
 
     var isResultPage: Bool {
@@ -101,6 +109,33 @@ final class LearningQuizSessionViewModel: ObservableObject {
             selectedAnswers[question.id] != nil
         case .result:
             true
+        }
+    }
+
+    func generateQuestions(
+        service: QuizGenerationServiceProtocol,
+        gestures: [GestureModel],
+        context: QuizGenerationContext
+    ) async {
+        guard questions.isEmpty else { return }
+
+        await updateGenerationProgress(step: 0, progress: 0.16)
+        await updateGenerationProgress(step: 1, progress: 0.34)
+        await updateGenerationProgress(step: 2, progress: 0.58)
+
+        let generatedQuestions = await service.generateQuiz(
+            topic: node.title,
+            gestures: gestures,
+            context: quizContext(from: context)
+        )
+
+        await updateGenerationProgress(step: 3, progress: 0.92)
+
+        withAnimation(.spring(response: 0.42, dampingFraction: 0.86)) {
+            questions = generatedQuestions
+            generationProgress = 1
+            currentGenerationStep = 3
+            isGeneratingQuestions = false
         }
     }
 
@@ -190,6 +225,43 @@ final class LearningQuizSessionViewModel: ObservableObject {
         return String(format: "%02d:%02d", minutes, seconds)
     }
 
+    @MainActor
+    private func updateGenerationProgress(step: Int, progress: Double) async {
+        withAnimation(.spring(response: 0.42, dampingFraction: 0.84)) {
+            currentGenerationStep = step
+            generationProgress = progress
+        }
+
+        try? await Task.sleep(nanoseconds: 240_000_000)
+    }
+
+    private func quizContext(from baseContext: QuizGenerationContext) -> QuizGenerationContext {
+        if let gestureType = node.gestureId {
+            let gesture = GestureRepository.gesture(for: gestureType)
+            let relatedMistakes = baseContext.mistakes.filter { $0.gesture == gestureType }
+            let gestureMaterial = QuizStudyMaterial(
+                id: "\(node.id)-gesture-material",
+                title: "Жест «\(gesture.russianName)»",
+                summary: "Жест «\(gesture.russianName)» нужно выполнять спокойно и держать руку в кадре, чтобы камера уверенно считала движение.",
+                keyFacts: [
+                    gesture.executionDescription,
+                    "Жест «\(gesture.russianName)» используется для значения «\(gesture.russianName)».",
+                    "Во время проверки рука должна оставаться в зоне камеры."
+                ],
+                area: .gestureExecution
+            )
+
+            return QuizGenerationContext(
+                learnedGestures: [gesture],
+                studyMaterials: [gestureMaterial],
+                mistakes: relatedMistakes,
+                completedLearningNodeIDs: baseContext.completedLearningNodeIDs.union([node.id])
+            )
+        }
+
+        return baseContext
+    }
+
     private static func makeTheoryCards(for node: LearningNode) -> [LearningQuizTheoryCard] {
         let gesture = node.gestureId.map { GestureRepository.gesture(for: $0) }
         let title = gesture?.englishName ?? "первые жесты"
@@ -210,63 +282,4 @@ final class LearningQuizSessionViewModel: ObservableObject {
         ]
     }
 
-    private static func makeQuestions(for node: LearningNode) -> [QuizQuestion] {
-        if let gestureType = node.gestureId {
-            let gesture = GestureRepository.gesture(for: gestureType)
-            let wrongTranslationAnswers = GestureRepository.gestures
-                .filter { $0.type != gesture.type }
-                .shuffled()
-                .prefix(3)
-                .map { QuizAnswer(title: $0.russianName, isCorrect: false) }
-            let wrongGestureAnswers = GestureRepository.gestures
-                .filter { $0.type != gesture.type }
-                .shuffled()
-                .prefix(3)
-                .map { QuizAnswer(title: $0.englishName, isCorrect: false) }
-
-            return [
-                QuizQuestion(
-                    type: .chooseTranslation,
-                    prompt: "Выберите значение жеста «\(gesture.englishName)».",
-                    gesture: gesture.type,
-                    answers: ([QuizAnswer(title: gesture.russianName, isCorrect: true)] + wrongTranslationAnswers).shuffled(),
-                    hint: gesture.executionDescription
-                ),
-                QuizQuestion(
-                    type: .chooseGesture,
-                    prompt: "Какой жест вы только что тренировали?",
-                    gesture: gesture.type,
-                    answers: ([QuizAnswer(title: gesture.englishName, isCorrect: true)] + wrongGestureAnswers).shuffled(),
-                    hint: "Вспомните жест со страницы практики."
-                )
-            ]
-        }
-
-        return [
-            QuizQuestion(
-                type: .chooseGesture,
-                prompt: "Какой набор относится к первому модулю?",
-                gesture: nil,
-                answers: [
-                    QuizAnswer(title: "Да, нет, привет, спасибо", isCorrect: true),
-                    QuizAnswer(title: "Помощь, плохо, учиться, пожалуйста", isCorrect: false),
-                    QuizAnswer(title: "Хорошо, плохо, я люблю тебя, учиться", isCorrect: false),
-                    QuizAnswer(title: "Пожалуйста, помощь, хорошо, плохо", isCorrect: false)
-                ],
-                hint: "Вспомните жесты из текущего маршрута."
-            ),
-            QuizQuestion(
-                type: .chooseTranslation,
-                prompt: "Зачем нужна страница практики?",
-                gesture: nil,
-                answers: [
-                    QuizAnswer(title: "Попробовать жест перед ответом", isCorrect: true),
-                    QuizAnswer(title: "Полностью пропустить распознавание", isCorrect: false),
-                    QuizAnswer(title: "Открыть настройки профиля", isCorrect: false),
-                    QuizAnswer(title: "Сбросить прогресс курса", isCorrect: false)
-                ],
-                hint: "Маршрут чередует короткую теорию и действие."
-            )
-        ]
-    }
 }

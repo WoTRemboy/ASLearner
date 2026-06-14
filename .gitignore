@@ -36,6 +36,13 @@ playground.xcworkspace
 # Pods are installed locally. After cloning the project, run `pod install`
 # and open ASLearner.xcworkspace.
 Pods/
+
+# Local LLM models
+*.gguf
+
+# Prebuilt local frameworks
+*.xcframework/
+llama.xcframework/
 #
 # Add this line if you want to avoid checking in source code from the Xcode workspace
 # *.xcworkspace

@@ -6,6 +6,8 @@ struct QuizView: View {
     @State private var selectedAnswers: [UUID: UUID] = [:]
     @State private var isLoading = false
     @State private var didSubmit = false
+    @State private var generationProgress = 0.0
+    @State private var currentGenerationStep = 0
 
     private var correctCount: Int {
         questions.filter { question in
@@ -21,8 +23,13 @@ struct QuizView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     if isLoading {
-                        loadingCard
+                        QuizGenerationProgressView(
+                            progress: generationProgress,
+                            currentStep: currentGenerationStep,
+                            steps: QuizGenerationProgressView.defaultSteps
+                        )
                             .padding(.horizontal, 20)
+                            .transition(.blurReplace.combined(with: .opacity))
                     } else {
                         quizSummary
                             .padding(.horizontal, 20)
@@ -45,19 +52,6 @@ struct QuizView: View {
         .task {
             guard questions.isEmpty else { return }
             await regenerateQuiz()
-        }
-    }
-
-    private var loadingCard: some View {
-        LiquidGlassCard {
-            HStack(spacing: 14) {
-                ProgressView()
-                    .tint(LiquidGlassTheme.accent)
-                Text(Texts.QuizPage.loading)
-                    .font(.headline)
-                    .foregroundStyle(LiquidGlassTheme.foreground)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -104,10 +98,6 @@ struct QuizView: View {
                     .font(.headline)
                     .foregroundStyle(LiquidGlassTheme.foreground)
                     .fixedSize(horizontal: false, vertical: true)
-
-                if let gesture = question.gesture, Image.GestureScheme.assetName(for: gesture) != nil {
-                    GestureSchemeImageView(gesture: gesture, widthRatio: 0.62, maxSide: 260)
-                }
 
                 if question.type == .performGesture {
                     performGestureAction(question)
@@ -198,6 +188,7 @@ struct QuizView: View {
     private func submitQuiz() {
         guard !didSubmit else { return }
         didSubmit = true
+        appViewModel.recordQuizAttempt(questions: questions, selectedAnswerIDs: selectedAnswers)
         appViewModel.applyQuizAward(correctAnswers: correctCount, totalQuestions: questions.count)
     }
 
@@ -205,7 +196,137 @@ struct QuizView: View {
         isLoading = true
         didSubmit = false
         selectedAnswers = [:]
-        questions = await appViewModel.container.quizGenerationService.generateQuiz(topic: "Базовые жесты", gestures: appViewModel.gestures)
+        generationProgress = 0
+        currentGenerationStep = 0
+
+        await updateGenerationProgress(step: 0, progress: 0.16)
+        await updateGenerationProgress(step: 1, progress: 0.34)
+        await updateGenerationProgress(step: 2, progress: 0.58)
+
+        questions = await appViewModel.container.quizGenerationService.generateQuiz(
+            topic: "Базовые жесты",
+            gestures: appViewModel.gestures,
+            context: appViewModel.quizGenerationContext
+        )
+
+        await updateGenerationProgress(step: 3, progress: 0.92)
+        await updateGenerationProgress(step: 3, progress: 1.0)
         isLoading = false
+    }
+
+    @MainActor
+    private func updateGenerationProgress(step: Int, progress: Double) async {
+        withAnimation(.spring(response: 0.42, dampingFraction: 0.84)) {
+            currentGenerationStep = step
+            generationProgress = progress
+        }
+
+        try? await Task.sleep(nanoseconds: 260_000_000)
+    }
+}
+
+struct QuizGenerationStep: Identifiable {
+    let id = UUID()
+    let title: String
+    let subtitle: String
+    let systemImage: String
+}
+
+struct QuizGenerationProgressView: View {
+    let progress: Double
+    let currentStep: Int
+    let steps: [QuizGenerationStep]
+
+    static let defaultSteps = [
+        QuizGenerationStep(title: "Материалы", subtitle: "Выбираем пройденные жесты и теорию", systemImage: "book.pages.fill"),
+        QuizGenerationStep(title: "Ошибки", subtitle: "Ищем темы для закрепления", systemImage: "exclamationmark.arrow.trianglehead.counterclockwise.rotate.90"),
+        QuizGenerationStep(title: "LLM", subtitle: "Формулируем вопросы и подсказки локально", systemImage: "cpu.fill"),
+        QuizGenerationStep(title: "Проверка", subtitle: "Валидируем ответы и собираем тест", systemImage: "checkmark.seal.fill")
+    ]
+
+    var body: some View {
+        VStack(spacing: 22) {
+            Spacer(minLength: 20)
+
+            LiquidGlassCard(cornerRadius: 28, padding: 22) {
+                VStack(alignment: .leading, spacing: 22) {
+                    header
+
+                    LiquidGlassProgressView(value: progress, height: 14, tint: LiquidGlassTheme.accent)
+
+                    VStack(spacing: 12) {
+                        ForEach(Array(steps.enumerated()), id: \.element.id) { index, step in
+                            generationStepRow(step, index: index)
+                        }
+                    }
+                }
+            }
+
+            Spacer(minLength: 20)
+        }
+        .frame(maxWidth: .infinity, minHeight: 560)
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
+                Image(systemName: "wand.and.sparkles")
+                    .font(.title2.bold())
+                    .foregroundStyle(.white)
+                    .frame(width: 48, height: 48)
+                    .background(LiquidGlassTheme.accent, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(Texts.QuizPage.generationTitle)
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundStyle(LiquidGlassTheme.foreground)
+
+                    Text("\(Int(progress * 100))%")
+                        .font(.headline)
+                        .foregroundStyle(LiquidGlassTheme.accent)
+                        .contentTransition(.numericText(value: progress))
+                }
+            }
+
+            Text(progress >= 1 ? Texts.QuizPage.generationCompleted : Texts.QuizPage.generationSubtitle)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(LiquidGlassTheme.mutedForeground)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func generationStepRow(_ step: QuizGenerationStep, index: Int) -> some View {
+        let isCompleted = index < currentStep || progress >= 1
+        let isCurrent = index == currentStep && progress < 1
+
+        return HStack(spacing: 12) {
+            Image(systemName: isCompleted ? "checkmark.circle.fill" : step.systemImage)
+                .font(.headline)
+                .foregroundStyle(isCompleted ? LiquidGlassTheme.success : isCurrent ? LiquidGlassTheme.accent : LiquidGlassTheme.mutedForeground)
+                .frame(width: 34, height: 34)
+                .background((isCurrent ? LiquidGlassTheme.accent : LiquidGlassTheme.mutedForeground).opacity(0.12), in: Circle())
+                .symbolEffect(.pulse, value: isCurrent)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(step.title)
+                    .font(.headline)
+                    .foregroundStyle(LiquidGlassTheme.foreground)
+
+                Text(step.subtitle)
+                    .font(.caption)
+                    .foregroundStyle(LiquidGlassTheme.mutedForeground)
+            }
+
+            Spacer()
+
+            if isCurrent {
+                ProgressView()
+                    .controlSize(.small)
+                    .tint(LiquidGlassTheme.accent)
+            }
+        }
+        .padding(12)
+        .background(Color.white.opacity(isCurrent ? 0.14 : 0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .animation(.spring(response: 0.36, dampingFraction: 0.84), value: currentStep)
     }
 }

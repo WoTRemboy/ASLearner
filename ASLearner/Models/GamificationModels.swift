@@ -9,6 +9,7 @@ struct UserProgressModel: Equatable {
     var completedLearningNodeIDs: Set<String>
     var recognizedGestures: Set<GestureType>
     var quizScores: [QuizScore]
+    var quizMistakes: [QuizMistakeRecord]
     var unlockedAchievementIDs: Set<String>
 
     static let demo = UserProgressModel(
@@ -20,6 +21,7 @@ struct UserProgressModel: Equatable {
         completedLearningNodeIDs: [],
         recognizedGestures: [],
         quizScores: [],
+        quizMistakes: [],
         unlockedAchievementIDs: []
     )
 
