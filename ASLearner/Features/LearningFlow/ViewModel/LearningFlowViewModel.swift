@@ -31,7 +31,7 @@ final class LearningFlowViewModel: ObservableObject {
         [
             LearningSection(
                 id: "section-1",
-                title: "Section 1",
+                title: "Раздел 1",
                 subtitle: "Базовые жесты",
                 progress: moduleProgress,
                 completedCount: nodes.filter { $0.status == .completed }.count,
@@ -41,7 +41,7 @@ final class LearningFlowViewModel: ObservableObject {
             ),
             LearningSection(
                 id: "section-2",
-                title: "Section 2",
+                title: "Раздел 2",
                 subtitle: "Диалоги и вежливость",
                 progress: 0,
                 completedCount: 0,
@@ -51,7 +51,7 @@ final class LearningFlowViewModel: ObservableObject {
             ),
             LearningSection(
                 id: "section-3",
-                title: "Section 3",
+                title: "Раздел 3",
                 subtitle: "Помощь и бытовые фразы",
                 progress: 0,
                 completedCount: 0,
@@ -61,7 +61,7 @@ final class LearningFlowViewModel: ObservableObject {
             ),
             LearningSection(
                 id: "section-4",
-                title: "Section 4",
+                title: "Раздел 4",
                 subtitle: "Эмоции и оценка",
                 progress: 0,
                 completedCount: 0,
@@ -71,8 +71,8 @@ final class LearningFlowViewModel: ObservableObject {
             ),
             LearningSection(
                 id: "section-5",
-                title: "Section 5",
-                subtitle: "Coming soon...",
+                title: "Раздел 5",
+                subtitle: "Скоро...",
                 progress: 0,
                 completedCount: 0,
                 totalCount: 0,

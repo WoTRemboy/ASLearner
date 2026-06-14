@@ -29,10 +29,10 @@ struct MockQuizGenerationService: QuizGenerationServiceProtocol {
 
         return QuizQuestion(
             type: .chooseTranslation,
-            prompt: "Choose the Russian translation for \(gesture.englishName).",
+            prompt: "Выберите значение жеста «\(gesture.englishName)».",
             gesture: gesture.type,
             answers: answers,
-            hint: "Think about the everyday context where this sign is used."
+            hint: "Вспомните ситуацию, где обычно используется этот жест."
         )
     }
 
@@ -47,7 +47,7 @@ struct MockQuizGenerationService: QuizGenerationServiceProtocol {
 
         return QuizQuestion(
             type: .chooseGesture,
-            prompt: "Which gesture matches “\(gesture.russianName)”?",
+            prompt: "Какой жест соответствует «\(gesture.russianName)»?",
             gesture: gesture.type,
             answers: answers,
             hint: gesture.executionDescription
@@ -57,13 +57,12 @@ struct MockQuizGenerationService: QuizGenerationServiceProtocol {
     private func performQuestion(for gesture: GestureModel) -> QuizQuestion {
         QuizQuestion(
             type: .performGesture,
-            prompt: "Perform \(gesture.englishName) in front of the camera.",
+            prompt: "Покажите жест «\(gesture.englishName)» перед камерой.",
             gesture: gesture.type,
             answers: [
-                QuizAnswer(title: "Ready to perform", isCorrect: true)
+                QuizAnswer(title: "Готово", isCorrect: true)
             ],
             hint: gesture.executionDescription
         )
     }
 }
-

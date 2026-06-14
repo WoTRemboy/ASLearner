@@ -23,7 +23,6 @@ struct ProfileView: View {
                 }
                 .padding(.bottom, 28)
             }
-            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.ProfilePage.title)
         .navigationBarTitleDisplayMode(.large)
@@ -87,11 +86,13 @@ struct ProfileView: View {
 
                     LazyVGrid(columns: recognitionGalleryColumns, spacing: 12) {
                         ForEach(Array(appViewModel.gestures.enumerated()), id: \.element.id) { index, gesture in
-                            ProfileGestureIcon(
+                            GestureGalleryIcon(
                                 gesture: gesture,
                                 isUnlocked: appViewModel.progress.recognizedGestures.contains(gesture.type),
-                                tint: achievementTints[index % achievementTints.count]
+                                tint: LiquidGlassGalleryPalette.tint(for: index),
+                                showsLockOverlay: true
                             )
+                            .frame(maxWidth: .infinity)
                         }
                     }
                     .padding(.top, 2)
@@ -121,10 +122,13 @@ struct ProfileView: View {
 
                     HStack(spacing: 10) {
                         ForEach(Array(appViewModel.achievements.prefix(4).enumerated()), id: \.element.id) { index, achievement in
-                            ProfileAchievementIcon(
+                            AchievementGalleryIcon(
                                 achievement: achievement,
-                                tint: achievementTints[index % achievementTints.count]
+                                tint: LiquidGlassGalleryPalette.tint(for: index),
+                                showsNewBadge: true,
+                                showsLockOverlay: true
                             )
+                            .frame(maxWidth: .infinity)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -142,57 +146,6 @@ struct ProfileView: View {
 
     private var recognitionGalleryColumns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: 8), count: 5)
-    }
-
-    private var achievementTints: [Color] {
-        [
-            LiquidGlassTheme.warning,
-            LiquidGlassTheme.secondaryAccent,
-            LiquidGlassTheme.accent,
-            LiquidGlassTheme.success
-        ]
-    }
-}
-
-private struct ProfileGestureIcon: View {
-    let gesture: GestureModel
-    let isUnlocked: Bool
-    let tint: Color
-
-    var body: some View {
-        ZStack(alignment: .topTrailing) {
-            Image(systemName: gesture.symbolName)
-                .font(.system(size: 23, weight: .bold))
-                .foregroundStyle(isUnlocked ? .white : Color.white.opacity(0.50))
-                .frame(width: 52, height: 52)
-                .background(
-                    LinearGradient(
-                        colors: [
-                            tint.opacity(isUnlocked ? 0.95 : 0.30),
-                            tint.opacity(isUnlocked ? 0.58 : 0.16)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    in: Circle()
-                )
-                .overlay {
-                    Circle()
-                        .stroke(Color.white.opacity(isUnlocked ? 0.44 : 0.18), lineWidth: 2)
-                }
-                .shadow(color: tint.opacity(isUnlocked ? 0.20 : 0.06), radius: 14, x: 0, y: 8)
-
-            if !isUnlocked {
-                Image(systemName: "lock.fill")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(Color.white.opacity(0.72))
-                    .padding(6)
-                    .background(Color.black.opacity(0.22), in: Circle())
-                    .offset(x: 5, y: -3)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .accessibilityLabel(gesture.englishName)
     }
 }
 
@@ -229,53 +182,5 @@ private struct ProfileStatTile: View {
             }
             .frame(maxWidth: .infinity, minHeight: 76, alignment: .center)
         }
-    }
-}
-
-private struct ProfileAchievementIcon: View {
-    let achievement: AchievementModel
-    let tint: Color
-
-    var body: some View {
-        ZStack(alignment: .topTrailing) {
-            Image(systemName: achievement.symbolName)
-                .font(.system(size: 24, weight: .bold))
-                .foregroundStyle(achievement.isUnlocked ? .white : Color.white.opacity(0.48))
-                .frame(width: 52, height: 52)
-                .background(
-                    LinearGradient(
-                        colors: [
-                            tint.opacity(achievement.isUnlocked ? 0.95 : 0.32),
-                            tint.opacity(achievement.isUnlocked ? 0.58 : 0.18)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    in: Circle()
-                )
-                .overlay {
-                    Circle()
-                        .stroke(Color.white.opacity(achievement.isUnlocked ? 0.44 : 0.20), lineWidth: 2)
-                }
-                .shadow(color: tint.opacity(achievement.isUnlocked ? 0.22 : 0.08), radius: 14, x: 0, y: 8)
-
-            if achievement.isUnlocked {
-                Text("NEW")
-                    .font(.system(size: 10, weight: .black))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
-                    .background(LiquidGlassTheme.secondaryAccent, in: Capsule())
-                    .offset(x: 8, y: -4)
-            } else {
-                Image(systemName: "lock.fill")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(Color.white.opacity(0.72))
-                    .padding(6)
-                    .background(Color.black.opacity(0.22), in: Circle())
-                    .offset(x: 5, y: -3)
-            }
-        }
-        .frame(maxWidth: .infinity)
     }
 }

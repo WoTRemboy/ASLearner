@@ -1,13 +1,23 @@
 import SwiftUI
 
+private enum QuizCameraStopAction {
+    case advance
+    case dismiss
+}
+
 struct LearningQuizStepView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: LearningQuizSessionViewModel
+    @State private var cameraStopRequest = 0
+    @State private var pendingCameraStopAction: QuizCameraStopAction?
+    @State private var streakUpdate: DayStreakUpdate?
+    @State private var canContinueAfterStreak = false
+    @State private var didApplyCompletion = false
 
     let node: LearningNode
-    let onComplete: () -> Void
+    let onComplete: () -> DayStreakUpdate?
 
-    init(node: LearningNode, onComplete: @escaping () -> Void) {
+    init(node: LearningNode, onComplete: @escaping () -> DayStreakUpdate?) {
         self.node = node
         self.onComplete = onComplete
         self._viewModel = StateObject(wrappedValue: LearningQuizSessionViewModel(node: node))
@@ -25,22 +35,39 @@ struct LearningQuizStepView: View {
                 .padding(.vertical, 12)
         }
         .safeAreaInset(edge: .bottom) {
-            if viewModel.isResultPage {
-                LearningTaskResultButton {
-                    onComplete()
+            if streakUpdate != nil {
+                LearningTaskResultButton(
+                    title: Texts.LearningFlowPage.continueButton,
+                    isEnabled: canContinueAfterStreak
+                ) {
                     dismiss()
                 }
+            } else if viewModel.isResultPage {
+                LearningTaskResultButton(
+                    isEnabled: viewModel.isShowingResultContent,
+                    action: completeTask
+                )
             } else {
                 LearningTaskBottomControls(
                     timeString: viewModel.timeString,
                     elapsedSeconds: viewModel.elapsedSeconds,
-                    canMoveForward: viewModel.canMoveForward,
-                    close: { dismiss() },
-                    moveForward: { viewModel.moveForward() }
+                    canMoveForward: viewModel.canMoveForward && pendingCameraStopAction == nil,
+                    close: {
+                        requestCameraStop(.dismiss)
+                    },
+                    moveForward: advanceAfterCameraStops
                 )
             }
         }
         .toolbar {
+            if shouldShowSkipButton {
+                ToolbarItem(placement: .topBarTrailing) {
+                    SkipGestureToolbarButton {
+                        viewModel.simulatePractice()
+                    }
+                }
+            }
+
             ToolbarItem {
                 LearningQuizScoreView(score: viewModel.quizScore)
             }
@@ -53,6 +80,10 @@ struct LearningQuizStepView: View {
         .onDisappear {
             viewModel.stopTimer()
         }
+    }
+
+    private var shouldShowSkipButton: Bool {
+        viewModel.currentPage == .practice && !viewModel.didPractice && streakUpdate == nil
     }
 
     @ViewBuilder
@@ -75,15 +106,29 @@ struct LearningQuizStepView: View {
     private func pageContent(for page: LearningQuizPage) -> some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 22) {
-                switch page {
+                if let streakUpdate {
+                    LearningStreakCelebrationPage(update: streakUpdate) {
+                        withAnimation(.spring(response: 0.34, dampingFraction: 0.78)) {
+                            canContinueAfterStreak = true
+                        }
+                    }
+                } else {
+                    switch page {
                 case .theory(let card):
                     LearningQuizTheoryPage(card: card, node: node)
                 case .practice:
-                    LearningQuizPracticePage(viewModel: viewModel, node: node)
+                    LearningQuizPracticePage(
+                        viewModel: viewModel,
+                        node: node,
+                        stopRequest: cameraStopRequest
+                    ) {
+                        performPendingCameraStopAction()
+                    }
                 case .question(let question):
                     LearningQuizQuestionPage(question: question, viewModel: viewModel)
                 case .result:
                     LearningQuizResultPage(viewModel: viewModel, node: node)
+                    }
                 }
             }
             .padding(.horizontal, 20)
@@ -92,13 +137,66 @@ struct LearningQuizStepView: View {
         }
         .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
     }
+
+    private func advanceAfterCameraStops() {
+        guard viewModel.canMoveForward, pendingCameraStopAction == nil else { return }
+
+        if viewModel.currentPage == .practice {
+            requestCameraStop(.advance)
+        } else {
+            viewModel.moveForward()
+        }
+    }
+
+    private func requestCameraStop(_ action: QuizCameraStopAction) {
+        guard viewModel.currentPage == .practice else {
+            perform(action)
+            return
+        }
+
+        pendingCameraStopAction = action
+        cameraStopRequest += 1
+    }
+
+    private func performPendingCameraStopAction() {
+        guard let action = pendingCameraStopAction else { return }
+        pendingCameraStopAction = nil
+        perform(action)
+    }
+
+    private func perform(_ action: QuizCameraStopAction) {
+        switch action {
+        case .advance:
+            viewModel.moveForward()
+        case .dismiss:
+            dismiss()
+        }
+    }
+
+    private func completeTask() {
+        guard !didApplyCompletion else {
+            dismiss()
+            return
+        }
+
+        didApplyCompletion = true
+
+        if let update = onComplete() {
+            canContinueAfterStreak = false
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.86)) {
+                streakUpdate = update
+            }
+        } else {
+            dismiss()
+        }
+    }
 }
 
 private struct LearningQuizScoreView: View {
     let score: Int
 
     var body: some View {
-        Text("Score: \(score)")
+        Text("Счёт: \(score)")
             .font(.headline)
             .contentTransition(.numericText(value: Double(score)))
             .frame(minWidth: 92)
@@ -123,6 +221,8 @@ private struct LearningQuizTheoryPage: View {
 private struct LearningQuizPracticePage: View {
     @ObservedObject var viewModel: LearningQuizSessionViewModel
     let node: LearningNode
+    let stopRequest: Int
+    let onStopCompleted: () -> Void
 
     private var gesture: GestureModel {
         node.gestureId.map { GestureRepository.gesture(for: $0) } ?? GestureRepository.gesture(for: .hello)
@@ -130,12 +230,24 @@ private struct LearningQuizPracticePage: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 22) {
-            cameraPreview
+            LiveGestureCameraPanel(
+                gesture: gesture,
+                stopRequest: stopRequest
+            ) {
+                viewModel.simulatePractice()
+            } onStopCompleted: {
+                onStopCompleted()
+            }
 
             VStack(alignment: .leading, spacing: 10) {
-                Text("Try \(gesture.englishName)")
+                Text("Попробуйте «\(gesture.englishName)»")
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(LiquidGlassTheme.foreground)
+
+                if Image.GestureScheme.assetName(for: gesture.type) != nil {
+                    GestureSchemeImageView(gesture: gesture.type, widthRatio: 0.62, maxSide: 280)
+                        .padding(.vertical, 6)
+                }
 
                 Text(gesture.executionDescription)
                     .font(.title3)
@@ -143,46 +255,6 @@ private struct LearningQuizPracticePage: View {
                     .lineSpacing(4)
                     .foregroundStyle(LiquidGlassTheme.mutedForeground)
                     .fixedSize(horizontal: false, vertical: true)
-
-                if viewModel.didPractice {
-                    Label("Practice accepted. Continue to the test.", systemImage: "checkmark.seal.fill")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(LiquidGlassTheme.success)
-                        .transition(.blurReplace)
-                }
-            }
-
-            Button {
-                viewModel.simulatePractice()
-            } label: {
-                Label(Texts.LearningFlowPage.simulateGesture, systemImage: "camera.viewfinder")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 15)
-            }
-            .buttonStyle(.glassProminent)
-            .tint(viewModel.didPractice ? LiquidGlassTheme.success : LiquidGlassTheme.accent)
-        }
-    }
-
-    private var cameraPreview: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(Color.black.opacity(0.24))
-                .aspectRatio(4 / 3, contentMode: .fit)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(Color.white.opacity(0.22), lineWidth: 1)
-                }
-
-            VStack(spacing: 12) {
-                Image(systemName: viewModel.didPractice ? "checkmark.circle.fill" : "camera.viewfinder")
-                    .font(.system(size: 54, weight: .semibold))
-                    .foregroundStyle(viewModel.didPractice ? LiquidGlassTheme.success : LiquidGlassTheme.accent)
-
-                Text(viewModel.didPractice ? "Recognized \(gesture.englishName)" : Texts.CameraPage.mockPreview)
-                    .font(Font.caption(.bold))
-                    .foregroundStyle(.white)
             }
         }
     }
@@ -223,6 +295,11 @@ private struct LearningQuizQuestionTitle: View {
                 .foregroundStyle(LiquidGlassTheme.foreground)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
+
+            if let gesture = question.gesture, Image.GestureScheme.assetName(for: gesture) != nil {
+                GestureSchemeImageView(gesture: gesture, widthRatio: 0.62, maxSide: 280)
+                    .padding(.top, 2)
+            }
         }
     }
 }
@@ -305,7 +382,7 @@ private struct LearningQuizResultPage: View {
         GlassEffectContainer {
             HStack(spacing: 12) {
                 resultPill(
-                    title: "Score",
+                    title: "Счёт",
                     value: "\(viewModel.quizScore)",
                     systemImage: "bolt.fill",
                     tint: LiquidGlassTheme.warning,
@@ -313,7 +390,7 @@ private struct LearningQuizResultPage: View {
                 )
 
                 resultPill(
-                    title: "Time",
+                    title: "Время",
                     value: viewModel.timeString,
                     systemImage: "timer",
                     tint: LiquidGlassTheme.accent,

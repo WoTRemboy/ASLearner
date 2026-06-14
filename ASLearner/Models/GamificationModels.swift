@@ -4,6 +4,7 @@ struct UserProgressModel: Equatable {
     var xp: Int
     var level: Int
     var streak: Int
+    var lastStreakDate: Date?
     var completedLessonIDs: Set<String>
     var completedLearningNodeIDs: Set<String>
     var recognizedGestures: Set<GestureType>
@@ -14,6 +15,7 @@ struct UserProgressModel: Equatable {
         xp: 0,
         level: 1,
         streak: 0,
+        lastStreakDate: nil,
         completedLessonIDs: [],
         completedLearningNodeIDs: [],
         recognizedGestures: [],
@@ -30,6 +32,16 @@ struct UserProgressModel: Equatable {
     }
 }
 
+struct DayStreakUpdate: Equatable {
+    let previousStreak: Int
+    let currentStreak: Int
+    let date: Date
+
+    var gainedDays: Int {
+        max(0, currentStreak - previousStreak)
+    }
+}
+
 struct AchievementModel: Identifiable, Hashable {
     let id: String
     let title: String
@@ -42,6 +54,7 @@ struct GamificationUpdate {
     let updatedProgress: UserProgressModel
     let gainedXP: Int
     let didLevelUp: Bool
+    let streakUpdate: DayStreakUpdate?
     let unlockedAchievements: [AchievementModel]
     let message: String
 }

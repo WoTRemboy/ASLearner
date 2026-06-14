@@ -41,6 +41,10 @@ struct GesturePracticeView: View {
                                 .foregroundStyle(LiquidGlassTheme.mutedForeground)
                                 .fixedSize(horizontal: false, vertical: true)
 
+                            if Image.GestureScheme.assetName(for: gesture.type) != nil {
+                                GestureSchemeImageView(gesture: gesture.type, widthRatio: 0.68, maxSide: 300)
+                            }
+
                             Divider()
                                 .overlay(Color.white.opacity(0.18))
 

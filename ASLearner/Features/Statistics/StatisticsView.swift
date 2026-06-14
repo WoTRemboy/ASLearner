@@ -33,7 +33,6 @@ struct StatisticsView: View {
                 }
                 .padding(.bottom, 28)
             }
-            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.StatisticsPage.title)
         .navigationBarTitleDisplayMode(.large)
@@ -43,7 +42,7 @@ struct StatisticsView: View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
             StatCard(title: Texts.HomePage.xp, value: "\(appViewModel.progress.xp)", systemImage: "bolt.fill")
             StatCard(title: Texts.Stats.level, value: "\(appViewModel.progress.level)", systemImage: "arrow.up.circle.fill", tint: LiquidGlassTheme.success)
-            StatCard(title: Texts.Stats.streak, value: "\(appViewModel.progress.streak)d", systemImage: "flame.fill", tint: LiquidGlassTheme.secondaryAccent)
+            StatCard(title: Texts.Stats.streak, value: "\(appViewModel.progress.streak)", systemImage: "flame.fill", tint: LiquidGlassTheme.secondaryAccent)
             StatCard(title: Texts.Stats.averageQuiz, value: "\(Int(appViewModel.averageQuizScore * 100))%", systemImage: "percent", tint: LiquidGlassTheme.warning)
         }
     }
@@ -57,7 +56,7 @@ struct StatisticsView: View {
 
                 LiquidGlassProgressView(value: Double(appViewModel.progress.recognizedGestures.count) / Double(max(appViewModel.gestures.count, 1)))
 
-                Text("\(appViewModel.progress.recognizedGestures.count) of \(appViewModel.gestures.count) \(Texts.StatisticsPage.recognitionCoverageSuffix)")
+                Text("\(appViewModel.progress.recognizedGestures.count) из \(appViewModel.gestures.count): \(Texts.StatisticsPage.recognitionCoverageSuffix)")
                     .font(.subheadline)
                     .foregroundStyle(LiquidGlassTheme.mutedForeground)
                     .fixedSize(horizontal: false, vertical: true)

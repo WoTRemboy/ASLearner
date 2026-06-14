@@ -9,14 +9,16 @@ struct AchievementsView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
-                    ForEach(appViewModel.achievements) { achievement in
-                        AchievementBadge(achievement: achievement)
+                    ForEach(Array(appViewModel.achievements.enumerated()), id: \.element.id) { index, achievement in
+                        AchievementBadge(
+                            achievement: achievement,
+                            tint: LiquidGlassGalleryPalette.tint(for: index)
+                        )
                             .padding(.horizontal, 20)
                     }
                 }
                 .padding(.bottom, 28)
             }
-            .scrollBounceBehavior(.basedOnSize, axes: [.vertical])
         }
         .navigationTitle(Texts.AchievementsPage.title)
         .navigationBarTitleDisplayMode(.inline)

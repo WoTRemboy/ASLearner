@@ -3,112 +3,112 @@ import Foundation
 enum GestureRepository {
     static let gestures: [GestureModel] = [
         GestureModel(
-            id: GestureType.hello.id,
-            type: .hello,
-            englishName: "Hello",
-            russianName: "Привет",
-            executionDescription: "Open your hand near the forehead and move it outward in a small arc.",
-            difficulty: .beginner,
-            category: "Basics",
-            symbolName: "hand.wave.fill",
-            mediaPlaceholderName: nil
-        ),
-        GestureModel(
-            id: GestureType.thankYou.id,
-            type: .thankYou,
-            englishName: "Thank you",
-            russianName: "Спасибо",
-            executionDescription: "Touch the fingertips to the chin and move the hand forward with the palm up.",
-            difficulty: .beginner,
-            category: "Basics",
-            symbolName: "hands.clap.fill",
-            mediaPlaceholderName: nil
-        ),
-        GestureModel(
             id: GestureType.yes.id,
             type: .yes,
-            englishName: "Yes",
+            englishName: "Да",
             russianName: "Да",
-            executionDescription: "Make a fist and nod it down and up like a small head movement.",
+            executionDescription: "Сожмите кулак и слегка качните им вверх-вниз, как кивок головой.",
             difficulty: .beginner,
-            category: "Answers",
+            category: "Ответы",
             symbolName: "checkmark.circle.fill",
             mediaPlaceholderName: nil
         ),
         GestureModel(
             id: GestureType.no.id,
             type: .no,
-            englishName: "No",
+            englishName: "Нет",
             russianName: "Нет",
-            executionDescription: "Bring the index and middle fingers together with the thumb twice.",
+            executionDescription: "Дважды сведите указательный и средний пальцы с большим пальцем.",
             difficulty: .beginner,
-            category: "Answers",
+            category: "Ответы",
             symbolName: "xmark.circle.fill",
+            mediaPlaceholderName: nil
+        ),
+        GestureModel(
+            id: GestureType.hello.id,
+            type: .hello,
+            englishName: "Привет",
+            russianName: "Привет",
+            executionDescription: "Откройте ладонь у лба и мягко отведите руку наружу небольшой дугой.",
+            difficulty: .beginner,
+            category: "База",
+            symbolName: "hand.wave.fill",
+            mediaPlaceholderName: nil
+        ),
+        GestureModel(
+            id: GestureType.thankYou.id,
+            type: .thankYou,
+            englishName: "Спасибо",
+            russianName: "Спасибо",
+            executionDescription: "Коснитесь подбородка кончиками пальцев и отведите руку вперёд ладонью вверх.",
+            difficulty: .beginner,
+            category: "База",
+            symbolName: "hands.clap.fill",
             mediaPlaceholderName: nil
         ),
         GestureModel(
             id: GestureType.please.id,
             type: .please,
-            englishName: "Please",
+            englishName: "Пожалуйста",
             russianName: "Пожалуйста",
-            executionDescription: "Place an open hand on the chest and move it in a small circular motion.",
+            executionDescription: "Положите открытую ладонь на грудь и сделайте небольшое круговое движение.",
             difficulty: .beginner,
-            category: "Polite phrases",
+            category: "Вежливость",
             symbolName: "heart.circle.fill",
             mediaPlaceholderName: nil
         ),
         GestureModel(
             id: GestureType.help.id,
             type: .help,
-            englishName: "Help",
+            englishName: "Помощь",
             russianName: "Помощь",
-            executionDescription: "Place one fist on the opposite open palm and raise both hands upward.",
+            executionDescription: "Поставьте кулак на открытую ладонь другой руки и поднимите обе руки вверх.",
             difficulty: .medium,
-            category: "Everyday",
+            category: "Быт",
             symbolName: "lifepreserver.fill",
             mediaPlaceholderName: nil
         ),
         GestureModel(
             id: GestureType.good.id,
             type: .good,
-            englishName: "Good",
+            englishName: "Хорошо",
             russianName: "Хорошо",
-            executionDescription: "Move a flat hand from the lips down to the opposite palm.",
+            executionDescription: "Проведите ровной ладонью от губ вниз к другой раскрытой ладони.",
             difficulty: .medium,
-            category: "Feedback",
+            category: "Оценка",
             symbolName: "hand.thumbsup.fill",
             mediaPlaceholderName: nil
         ),
         GestureModel(
             id: GestureType.bad.id,
             type: .bad,
-            englishName: "Bad",
+            englishName: "Плохо",
             russianName: "Плохо",
-            executionDescription: "Move a flat hand away from the mouth and rotate it downward.",
+            executionDescription: "Отведите ровную ладонь от рта и поверните её вниз.",
             difficulty: .medium,
-            category: "Feedback",
+            category: "Оценка",
             symbolName: "hand.thumbsdown.fill",
             mediaPlaceholderName: nil
         ),
         GestureModel(
             id: GestureType.iLoveYou.id,
             type: .iLoveYou,
-            englishName: "I love you",
+            englishName: "Я люблю тебя",
             russianName: "Я люблю тебя",
-            executionDescription: "Raise the thumb, index finger, and little finger while keeping the middle and ring fingers folded.",
+            executionDescription: "Поднимите большой, указательный и мизинец, оставив средний и безымянный пальцы согнутыми.",
             difficulty: .advanced,
-            category: "Emotions",
+            category: "Эмоции",
             symbolName: "heart.fill",
             mediaPlaceholderName: nil
         ),
         GestureModel(
             id: GestureType.learn.id,
             type: .learn,
-            englishName: "Learn",
+            englishName: "Учиться",
             russianName: "Учиться",
-            executionDescription: "Pick information from one palm with the fingertips and move it toward the forehead.",
+            executionDescription: "Как будто возьмите информацию с ладони кончиками пальцев и перенесите её ко лбу.",
             difficulty: .advanced,
-            category: "Education",
+            category: "Обучение",
             symbolName: "graduationcap.fill",
             mediaPlaceholderName: nil
         )
@@ -116,25 +116,25 @@ enum GestureRepository {
 
     static let lessons: [LessonModel] = [
         LessonModel(
+            id: "answers-core",
+            title: "Короткие ответы",
+            subtitle: "Да, нет, привет, спасибо",
+            gestureTypes: [.yes, .no, .hello, .thankYou],
+            estimatedMinutes: 7,
+            accentSymbolName: "checkmark.seal.fill"
+        ),
+        LessonModel(
             id: "basics-hello",
-            title: "First Contact",
-            subtitle: "Hello, Thank you, Please",
+            title: "Первый контакт",
+            subtitle: "Привет, спасибо, пожалуйста",
             gestureTypes: [.hello, .thankYou, .please],
             estimatedMinutes: 6,
             accentSymbolName: "sparkles"
         ),
         LessonModel(
-            id: "answers-core",
-            title: "Quick Answers",
-            subtitle: "Yes, No, Good, Bad",
-            gestureTypes: [.yes, .no, .good, .bad],
-            estimatedMinutes: 8,
-            accentSymbolName: "checkmark.seal.fill"
-        ),
-        LessonModel(
             id: "support-learning",
-            title: "Support and Learning",
-            subtitle: "Help, Learn, I love you",
+            title: "Помощь и обучение",
+            subtitle: "Помощь, учиться, я люблю тебя",
             gestureTypes: [.help, .learn, .iLoveYou],
             estimatedMinutes: 10,
             accentSymbolName: "brain.head.profile"
@@ -145,4 +145,3 @@ enum GestureRepository {
         gestures.first(where: { $0.type == type }) ?? gestures[0]
     }
 }
-

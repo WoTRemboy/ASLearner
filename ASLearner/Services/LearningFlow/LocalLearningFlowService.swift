@@ -79,26 +79,26 @@ extension LocalLearningFlowService {
                     quizId: nil
                 ),
                 LearningNode(
-                    id: "basic-02-practice-hello",
-                    title: "Жест Hello",
-                    subtitle: "Покажи приветствие перед камерой",
+                    id: "basic-02-practice-yes",
+                    title: "Жест «Да»",
+                    subtitle: "Подтверждение в диалоге",
                     type: .gesturePractice,
                     status: .locked,
                     order: 2,
                     xpReward: 25,
-                    gestureId: .hello,
+                    gestureId: .yes,
                     quizId: nil
                 ),
                 LearningNode(
-                    id: "basic-03-quiz-hello",
-                    title: "Проверь: Hello",
-                    subtitle: "Закрепи значение первого жеста",
+                    id: "basic-03-quiz-yes",
+                    title: "Проверь: «Да»",
+                    subtitle: "Закрепи первый короткий ответ",
                     type: .quiz,
                     status: .locked,
                     order: 3,
                     xpReward: 15,
-                    gestureId: .hello,
-                    quizId: "quiz-hello"
+                    gestureId: .yes,
+                    quizId: "quiz-yes"
                 ),
                 LearningNode(
                     id: "basic-04-theory-camera",
@@ -112,53 +112,53 @@ extension LocalLearningFlowService {
                     quizId: nil
                 ),
                 LearningNode(
-                    id: "basic-05-practice-thank-you",
-                    title: "Жест Thank you",
-                    subtitle: "Отработай благодарность",
-                    type: .gesturePractice,
-                    status: .locked,
-                    order: 5,
-                    xpReward: 25,
-                    gestureId: .thankYou,
-                    quizId: nil
-                ),
-                LearningNode(
-                    id: "basic-06-quiz-thank-you",
-                    title: "Проверь: Thank you",
-                    subtitle: "Выбери правильный перевод",
-                    type: .quiz,
-                    status: .locked,
-                    order: 6,
-                    xpReward: 15,
-                    gestureId: .thankYou,
-                    quizId: "quiz-thank-you"
-                ),
-                LearningNode(
-                    id: "basic-07-practice-yes",
-                    title: "Жест Yes",
-                    subtitle: "Подтверждение в диалоге",
-                    type: .gesturePractice,
-                    status: .locked,
-                    order: 7,
-                    xpReward: 25,
-                    gestureId: .yes,
-                    quizId: nil
-                ),
-                LearningNode(
-                    id: "basic-08-practice-no",
-                    title: "Жест No",
+                    id: "basic-05-practice-no",
+                    title: "Жест «Нет»",
                     subtitle: "Отрицание в диалоге",
                     type: .gesturePractice,
                     status: .locked,
-                    order: 8,
+                    order: 5,
                     xpReward: 25,
                     gestureId: .no,
                     quizId: nil
                 ),
                 LearningNode(
+                    id: "basic-06-quiz-no",
+                    title: "Проверь: «Нет»",
+                    subtitle: "Закрепи отрицательный ответ",
+                    type: .quiz,
+                    status: .locked,
+                    order: 6,
+                    xpReward: 15,
+                    gestureId: .no,
+                    quizId: "quiz-no"
+                ),
+                LearningNode(
+                    id: "basic-07-practice-hello",
+                    title: "Жест «Привет»",
+                    subtitle: "Покажи приветствие перед камерой",
+                    type: .gesturePractice,
+                    status: .locked,
+                    order: 7,
+                    xpReward: 25,
+                    gestureId: .hello,
+                    quizId: nil
+                ),
+                LearningNode(
+                    id: "basic-08-practice-thank-you",
+                    title: "Жест «Спасибо»",
+                    subtitle: "Отработай благодарность",
+                    type: .gesturePractice,
+                    status: .locked,
+                    order: 8,
+                    xpReward: 25,
+                    gestureId: .thankYou,
+                    quizId: nil
+                ),
+                LearningNode(
                     id: "basic-09-mini-quiz",
                     title: "Мини-тест: первые жесты",
-                    subtitle: "Hello, Thank you, Yes и No",
+                    subtitle: "Да, нет, привет и спасибо",
                     type: .quiz,
                     status: .locked,
                     order: 9,

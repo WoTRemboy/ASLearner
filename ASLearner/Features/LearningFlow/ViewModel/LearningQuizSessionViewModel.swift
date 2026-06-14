@@ -192,19 +192,19 @@ final class LearningQuizSessionViewModel: ObservableObject {
 
     private static func makeTheoryCards(for node: LearningNode) -> [LearningQuizTheoryCard] {
         let gesture = node.gestureId.map { GestureRepository.gesture(for: $0) }
-        let title = gesture?.englishName ?? "first gestures"
+        let title = gesture?.englishName ?? "первые жесты"
 
         return [
             LearningQuizTheoryCard(
                 id: "meaning",
                 symbolName: gesture?.symbolName ?? "hand.raised.fill",
-                title: "Before the test",
-                text: "Review the meaning and motion, then answer a short check. The next page lets you try the gesture before the questions.",
+                title: "Перед тестом",
+                text: "Повторите значение и движение, затем ответьте на короткую проверку. Сначала можно попробовать жест перед камерой.",
                 notes: [
-                    "Topic: \(title)",
-                    "Watch hand position",
-                    "Hands in frame",
-                    "Answer after practice"
+                    "Тема: \(title)",
+                    "Следите за ладонью",
+                    "Руки в кадре",
+                    "Ответ после практики"
                 ]
             )
         ]
@@ -213,30 +213,31 @@ final class LearningQuizSessionViewModel: ObservableObject {
     private static func makeQuestions(for node: LearningNode) -> [QuizQuestion] {
         if let gestureType = node.gestureId {
             let gesture = GestureRepository.gesture(for: gestureType)
+            let wrongTranslationAnswers = GestureRepository.gestures
+                .filter { $0.type != gesture.type }
+                .shuffled()
+                .prefix(3)
+                .map { QuizAnswer(title: $0.russianName, isCorrect: false) }
+            let wrongGestureAnswers = GestureRepository.gestures
+                .filter { $0.type != gesture.type }
+                .shuffled()
+                .prefix(3)
+                .map { QuizAnswer(title: $0.englishName, isCorrect: false) }
+
             return [
                 QuizQuestion(
                     type: .chooseTranslation,
-                    prompt: "Choose the Russian translation for \(gesture.englishName).",
+                    prompt: "Выберите значение жеста «\(gesture.englishName)».",
                     gesture: gesture.type,
-                    answers: [
-                        QuizAnswer(title: gesture.russianName, isCorrect: true),
-                        QuizAnswer(title: "Помощь", isCorrect: false),
-                        QuizAnswer(title: "Да", isCorrect: false),
-                        QuizAnswer(title: "Учиться", isCorrect: false)
-                    ].shuffled(),
+                    answers: ([QuizAnswer(title: gesture.russianName, isCorrect: true)] + wrongTranslationAnswers).shuffled(),
                     hint: gesture.executionDescription
                 ),
                 QuizQuestion(
                     type: .chooseGesture,
-                    prompt: "Which gesture did you just practice?",
+                    prompt: "Какой жест вы только что тренировали?",
                     gesture: gesture.type,
-                    answers: [
-                        QuizAnswer(title: gesture.englishName, isCorrect: true),
-                        QuizAnswer(title: "Help", isCorrect: false),
-                        QuizAnswer(title: "No", isCorrect: false),
-                        QuizAnswer(title: "Learn", isCorrect: false)
-                    ].shuffled(),
-                    hint: "Think about the gesture shown on the practice page."
+                    answers: ([QuizAnswer(title: gesture.englishName, isCorrect: true)] + wrongGestureAnswers).shuffled(),
+                    hint: "Вспомните жест со страницы практики."
                 )
             ]
         }
@@ -244,27 +245,27 @@ final class LearningQuizSessionViewModel: ObservableObject {
         return [
             QuizQuestion(
                 type: .chooseGesture,
-                prompt: "Which set belongs to the first module?",
+                prompt: "Какой набор относится к первому модулю?",
                 gesture: nil,
                 answers: [
-                    QuizAnswer(title: "Hello, Thank you, Yes, No", isCorrect: true),
-                    QuizAnswer(title: "Help, Bad, Learn, Please", isCorrect: false),
-                    QuizAnswer(title: "Good, Bad, I love you, Learn", isCorrect: false),
-                    QuizAnswer(title: "Please, Help, Good, Bad", isCorrect: false)
+                    QuizAnswer(title: "Да, нет, привет, спасибо", isCorrect: true),
+                    QuizAnswer(title: "Помощь, плохо, учиться, пожалуйста", isCorrect: false),
+                    QuizAnswer(title: "Хорошо, плохо, я люблю тебя, учиться", isCorrect: false),
+                    QuizAnswer(title: "Пожалуйста, помощь, хорошо, плохо", isCorrect: false)
                 ],
-                hint: "Remember the gestures practiced on the learning path."
+                hint: "Вспомните жесты из текущего маршрута."
             ),
             QuizQuestion(
                 type: .chooseTranslation,
-                prompt: "What is the goal of the practice page?",
+                prompt: "Зачем нужна страница практики?",
                 gesture: nil,
                 answers: [
-                    QuizAnswer(title: "Try the gesture before answering", isCorrect: true),
-                    QuizAnswer(title: "Skip recognition completely", isCorrect: false),
-                    QuizAnswer(title: "Open profile settings", isCorrect: false),
-                    QuizAnswer(title: "Reset course progress", isCorrect: false)
+                    QuizAnswer(title: "Попробовать жест перед ответом", isCorrect: true),
+                    QuizAnswer(title: "Полностью пропустить распознавание", isCorrect: false),
+                    QuizAnswer(title: "Открыть настройки профиля", isCorrect: false),
+                    QuizAnswer(title: "Сбросить прогресс курса", isCorrect: false)
                 ],
-                hint: "The flow alternates quick theory with immediate action."
+                hint: "Маршрут чередует короткую теорию и действие."
             )
         ]
     }

@@ -2,11 +2,11 @@ import Foundation
 
 struct MockGamificationService: GamificationServiceProtocol {
     private let achievementTemplates: [AchievementModel] = [
-        AchievementModel(id: "first-lesson", title: "First lesson", description: "Complete the first learning step.", symbolName: "flag.checkered", isUnlocked: false),
-        AchievementModel(id: "first-recognition", title: "First recognition", description: "Correctly perform a gesture in camera mode.", symbolName: "camera.viewfinder", isUnlocked: false),
-        AchievementModel(id: "five-gestures", title: "Gesture collector", description: "Recognize five unique gestures.", symbolName: "hand.raised.fill", isUnlocked: false),
-        AchievementModel(id: "level-two", title: "Level up", description: "Reach level 2 through practice.", symbolName: "arrow.up.circle.fill", isUnlocked: false),
-        AchievementModel(id: "quiz-master", title: "Quiz master", description: "Score at least 80% in a generated quiz.", symbolName: "brain.head.profile", isUnlocked: false)
+        AchievementModel(id: "first-lesson", title: "Первый урок", description: "Завершите первый шаг обучения.", symbolName: "flag.checkered", isUnlocked: false),
+        AchievementModel(id: "first-recognition", title: "Первый жест", description: "Успешно выполните жест перед камерой.", symbolName: "camera.viewfinder", isUnlocked: false),
+        AchievementModel(id: "five-gestures", title: "Коллекционер", description: "Распознайте пять разных жестов.", symbolName: "hand.raised.fill", isUnlocked: false),
+        AchievementModel(id: "level-two", title: "Новый уровень", description: "Достигните 2 уровня через практику.", symbolName: "arrow.up.circle.fill", isUnlocked: false),
+        AchievementModel(id: "quiz-master", title: "Мастер тестов", description: "Наберите не меньше 80% в тесте.", symbolName: "brain.head.profile", isUnlocked: false)
     ]
 
     func allAchievements(progress: UserProgressModel) -> [AchievementModel] {
@@ -30,6 +30,7 @@ struct MockGamificationService: GamificationServiceProtocol {
             updatedProgress.completedLessonIDs.insert(lessonID)
         }
 
+        let streakUpdate = updateDailyStreak(for: &updatedProgress)
         let unlocked = unlockAchievements(for: updatedProgress)
         updatedProgress.unlockedAchievementIDs.formUnion(unlocked.map(\.id))
 
@@ -37,8 +38,9 @@ struct MockGamificationService: GamificationServiceProtocol {
             updatedProgress: updatedProgress,
             gainedXP: gainedXP,
             didLevelUp: updatedProgress.level > oldLevel,
+            streakUpdate: streakUpdate,
             unlockedAchievements: unlocked,
-            message: "Great work. Gesture accepted and progress updated."
+            message: "Отлично! Жест принят, прогресс обновлён."
         )
     }
 
@@ -52,6 +54,7 @@ struct MockGamificationService: GamificationServiceProtocol {
         updatedProgress.level = (updatedProgress.xp / 100) + 1
         updatedProgress.quizScores.append(score)
 
+        let streakUpdate = updateDailyStreak(for: &updatedProgress)
         let unlocked = unlockAchievements(for: updatedProgress)
         updatedProgress.unlockedAchievementIDs.formUnion(unlocked.map(\.id))
 
@@ -59,8 +62,9 @@ struct MockGamificationService: GamificationServiceProtocol {
             updatedProgress: updatedProgress,
             gainedXP: gainedXP,
             didLevelUp: updatedProgress.level > oldLevel,
+            streakUpdate: streakUpdate,
             unlockedAchievements: unlocked,
-            message: "Quiz completed with \(correctAnswers)/\(totalQuestions) correct answers."
+            message: "Тест завершён: \(correctAnswers)/\(totalQuestions) верных ответов."
         )
     }
 
@@ -85,6 +89,7 @@ struct MockGamificationService: GamificationServiceProtocol {
             }
         }
 
+        let streakUpdate = updateDailyStreak(for: &updatedProgress)
         let unlocked = unlockAchievements(for: updatedProgress)
         updatedProgress.unlockedAchievementIDs.formUnion(unlocked.map(\.id))
 
@@ -92,8 +97,39 @@ struct MockGamificationService: GamificationServiceProtocol {
             updatedProgress: updatedProgress,
             gainedXP: gainedXP,
             didLevelUp: updatedProgress.level > oldLevel,
+            streakUpdate: streakUpdate,
             unlockedAchievements: unlocked,
-            message: isAlreadyCompleted ? "Step is already completed." : "Learning step completed. Progress updated."
+            message: isAlreadyCompleted ? "Шаг уже завершён." : "Шаг завершён, прогресс обновлён."
+        )
+    }
+
+    private func updateDailyStreak(for progress: inout UserProgressModel, now: Date = .now) -> DayStreakUpdate? {
+        let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: now)
+
+        if let lastStreakDate = progress.lastStreakDate,
+           calendar.isDate(lastStreakDate, inSameDayAs: todayStart) {
+            return nil
+        }
+
+        let previousStreak: Int
+
+        if let lastStreakDate = progress.lastStreakDate,
+           let yesterdayStart = calendar.date(byAdding: .day, value: -1, to: todayStart),
+           calendar.isDate(lastStreakDate, inSameDayAs: yesterdayStart) {
+            previousStreak = progress.streak
+            progress.streak += 1
+        } else {
+            previousStreak = 0
+            progress.streak = 1
+        }
+
+        progress.lastStreakDate = todayStart
+
+        return DayStreakUpdate(
+            previousStreak: previousStreak,
+            currentStreak: progress.streak,
+            date: todayStart
         )
     }
 

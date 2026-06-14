@@ -93,15 +93,6 @@ private struct LearningSectionCard: View {
                         Text(section.isComingSoon ? Texts.LearningFlowPage.comingSoon : section.subtitle)
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(LiquidGlassTheme.mutedForeground)
-
-                        if section.isLocked {
-                            Label(Texts.LearningFlowPage.locked, systemImage: "lock.fill")
-                                .font(Font.caption(.bold))
-                                .foregroundStyle(LiquidGlassTheme.accent)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
-                                .background(LiquidGlassTheme.accent.opacity(0.16), in: Capsule())
-                        }
                     }
 
                     Spacer()

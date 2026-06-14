@@ -7,10 +7,9 @@ struct AppContainer {
     let localLLMService: LocalLLMServiceProtocol
 
     static let demo = AppContainer(
-        gestureRecognitionService: MockGestureRecognitionService(),
+        gestureRecognitionService: MediaPipeGestureRecognitionService(),
         quizGenerationService: MockQuizGenerationService(),
         gamificationService: MockGamificationService(),
         localLLMService: MockLocalLLMService()
     )
 }
-

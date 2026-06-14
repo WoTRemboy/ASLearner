@@ -105,6 +105,10 @@ struct QuizView: View {
                     .foregroundStyle(LiquidGlassTheme.foreground)
                     .fixedSize(horizontal: false, vertical: true)
 
+                if let gesture = question.gesture, Image.GestureScheme.assetName(for: gesture) != nil {
+                    GestureSchemeImageView(gesture: gesture, widthRatio: 0.62, maxSide: 260)
+                }
+
                 if question.type == .performGesture {
                     performGestureAction(question)
                 } else {
@@ -201,7 +205,7 @@ struct QuizView: View {
         isLoading = true
         didSubmit = false
         selectedAnswers = [:]
-        questions = await appViewModel.container.quizGenerationService.generateQuiz(topic: "Basic sign language", gestures: appViewModel.gestures)
+        questions = await appViewModel.container.quizGenerationService.generateQuiz(topic: "Базовые жесты", gestures: appViewModel.gestures)
         isLoading = false
     }
 }

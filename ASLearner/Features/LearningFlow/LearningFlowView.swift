@@ -105,8 +105,10 @@ struct LearningFlowView: View {
             }) { node in
                 LearningNodeFullScreenView(node: node, namespace: namespace) {
                     if let completedNode = viewModel.complete(node) {
-                        appViewModel.applyLearningNodeAward(completedNode)
+                        return appViewModel.applyLearningNodeAward(completedNode).streakUpdate
                     }
+
+                    return nil
                 }
             }
             .fullScreenCover(isPresented: $viewModel.isShowingSections) {
@@ -115,6 +117,7 @@ struct LearningFlowView: View {
                     transitionID: sectionsTransitionID,
                     namespace: namespace
                 )
+                .interactiveDismissDisabled(true)
             }
         }
     }
@@ -182,12 +185,13 @@ private struct LearningNodeFullScreenView: View {
 
     let node: LearningNode
     let namespace: Namespace.ID
-    let onComplete: () -> Void
+    let onComplete: () -> DayStreakUpdate?
 
     var body: some View {
         NavigationStack {
             LearningNodeDestinationView(node: node, onComplete: onComplete)
         }
+        .interactiveDismissDisabled(true)
         .navigationTransition(
             .zoom(sourceID: node.id, in: namespace)
         )

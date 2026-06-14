@@ -10,11 +10,11 @@ enum QuizType: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .chooseTranslation:
-            "Translation"
+            "Перевод"
         case .chooseGesture:
-            "Gesture"
+            "Жест"
         case .performGesture:
-            "Camera"
+            "Камера"
         }
     }
 }
@@ -64,4 +64,3 @@ struct QuizScore: Identifiable, Hashable {
         return Double(correctAnswers) / Double(totalQuestions)
     }
 }
-

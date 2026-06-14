@@ -5,15 +5,18 @@ struct LearningCheckpointView: View {
     @StateObject private var session = LearningTaskSessionViewModel(pageCount: 3)
 
     let node: LearningNode
-    let onComplete: () -> Void
+    let onComplete: () -> DayStreakUpdate?
 
     @State private var completedChecks: Set<String> = []
+    @State private var streakUpdate: DayStreakUpdate?
+    @State private var canContinueAfterStreak = false
+    @State private var didApplyCompletion = false
 
     private let checks = [
-        "Explain what sign language is",
-        "Perform Hello and Thank you",
-        "Recognize Yes and No",
-        "Pass the mini quiz"
+        "Объяснить, что такое жестовый язык",
+        "Распознать «Да» и «Нет»",
+        "Показать «Привет» и «Спасибо»",
+        "Пройти мини-тест"
     ]
 
     var body: some View {
@@ -27,11 +30,19 @@ struct LearningCheckpointView: View {
                 .padding(.vertical, 12)
         }
         .safeAreaInset(edge: .bottom) {
-            if session.isResultPage {
-                LearningTaskResultButton(title: Texts.LearningFlowPage.completeCheckpoint) {
-                    onComplete()
+            if streakUpdate != nil {
+                LearningTaskResultButton(
+                    title: Texts.LearningFlowPage.continueButton,
+                    isEnabled: canContinueAfterStreak
+                ) {
                     dismiss()
                 }
+            } else if session.isResultPage {
+                LearningTaskResultButton(
+                    title: Texts.LearningFlowPage.completeCheckpoint,
+                    isEnabled: session.isShowingResultContent,
+                    action: completeTask
+                )
             } else {
                 LearningTaskBottomControls(
                     timeString: session.timeString,
@@ -82,14 +93,21 @@ struct LearningCheckpointView: View {
     private var pageContent: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 22) {
-                switch session.currentPageIndex {
+                if let streakUpdate {
+                    LearningStreakCelebrationPage(update: streakUpdate) {
+                        withAnimation(.spring(response: 0.34, dampingFraction: 0.78)) {
+                            canContinueAfterStreak = true
+                        }
+                    }
+                } else {
+                    switch session.currentPageIndex {
                 case 0:
                     LearningTaskReferencePage(
                         node: node,
                         symbolName: "flag.checkered",
-                        title: "Module checkpoint",
-                        text: "Finish the section by confirming the core skills from the first path: theory, camera practice and short recognition checks.",
-                        notes: ["4 checks", "Basic gestures", "Progress update"]
+                        title: "Итог модуля",
+                        text: "Завершите раздел: подтвердите теорию, практику с камерой и короткие проверки распознавания.",
+                        notes: ["4 проверки", "Базовые жесты", "Обновление прогресса"]
                     )
                 case 1:
                     checklistPage
@@ -97,11 +115,12 @@ struct LearningCheckpointView: View {
                     LearningTaskResultPage(
                         percent: session.resultPercentCounter,
                         isShowingContent: session.isShowingResultContent,
-                        title: "Checkpoint",
+                        title: "Итог",
                         value: "\(node.xpReward) XP",
                         timeString: session.timeString,
                         systemImage: "flag.checkered"
                     )
+                    }
                 }
             }
             .padding(.horizontal, 20)
@@ -114,11 +133,11 @@ struct LearningCheckpointView: View {
     private var checklistPage: some View {
         VStack(alignment: .leading, spacing: 18) {
             VStack(alignment: .leading, spacing: 10) {
-                Text("Module checklist")
+                Text("Чек-лист модуля")
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(LiquidGlassTheme.foreground)
 
-                Text("Tap each item after you confirm the skill.")
+                Text("Отметьте пункты после проверки навыка.")
                     .font(.title3)
                     .fontWeight(.medium)
                     .foregroundStyle(LiquidGlassTheme.mutedForeground)
@@ -129,6 +148,24 @@ struct LearningCheckpointView: View {
                     checkButton(check)
                 }
             }
+        }
+    }
+
+    private func completeTask() {
+        guard !didApplyCompletion else {
+            dismiss()
+            return
+        }
+
+        didApplyCompletion = true
+
+        if let update = onComplete() {
+            canContinueAfterStreak = false
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.86)) {
+                streakUpdate = update
+            }
+        } else {
+            dismiss()
         }
     }
 
