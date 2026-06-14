@@ -22,6 +22,7 @@ struct DictionaryView: View {
                     if filteredGestures.isEmpty {
                         emptyState
                             .padding(.top, 60)
+                            .transition(.blurReplace.combined(with: .opacity))
                     } else {
                         ForEach(filteredGestures) { gesture in
                             NavigationLink {
@@ -32,11 +33,18 @@ struct DictionaryView: View {
                             }
                             .buttonStyle(.plain)
                             .padding(.horizontal, 20)
+                            .transition(
+                                .asymmetric(
+                                    insertion: .move(edge: .bottom).combined(with: .opacity),
+                                    removal: .scale(scale: 0.96).combined(with: .opacity)
+                                )
+                            )
                         }
                     }
                 }
                 .padding(.top, 8)
                 .padding(.bottom, 28)
+                .animation(.spring(response: 0.36, dampingFraction: 0.86), value: filteredGestures.map(\.id))
             }
         }
         .navigationTitle(Texts.DictionaryPage.title)
@@ -47,6 +55,9 @@ struct DictionaryView: View {
             placement: .toolbarPrincipal,
             prompt: Texts.DictionaryPage.search
         )
+        .onChange(of: searchText) { _, _ in
+            withAnimation(.spring(response: 0.36, dampingFraction: 0.86)) {}
+        }
     }
 
     private var emptyState: some View {
@@ -203,13 +214,6 @@ private struct DictionaryGesturePracticeSheet: View {
                                 .lineSpacing(4)
                                 .foregroundStyle(LiquidGlassTheme.mutedForeground)
                                 .fixedSize(horizontal: false, vertical: true)
-
-                            if didRecognizeGesture {
-                                Label(Texts.LearningFlowPage.gestureAccepted, systemImage: "checkmark.seal.fill")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundStyle(LiquidGlassTheme.success)
-                                    .transition(.blurReplace)
-                            }
                         }
                     }
                     .padding(.horizontal, 20)

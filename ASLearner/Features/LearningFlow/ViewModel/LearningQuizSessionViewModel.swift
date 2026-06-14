@@ -213,29 +213,30 @@ final class LearningQuizSessionViewModel: ObservableObject {
     private static func makeQuestions(for node: LearningNode) -> [QuizQuestion] {
         if let gestureType = node.gestureId {
             let gesture = GestureRepository.gesture(for: gestureType)
+            let wrongTranslationAnswers = GestureRepository.gestures
+                .filter { $0.type != gesture.type }
+                .shuffled()
+                .prefix(3)
+                .map { QuizAnswer(title: $0.russianName, isCorrect: false) }
+            let wrongGestureAnswers = GestureRepository.gestures
+                .filter { $0.type != gesture.type }
+                .shuffled()
+                .prefix(3)
+                .map { QuizAnswer(title: $0.englishName, isCorrect: false) }
+
             return [
                 QuizQuestion(
                     type: .chooseTranslation,
                     prompt: "Выберите значение жеста «\(gesture.englishName)».",
                     gesture: gesture.type,
-                    answers: [
-                        QuizAnswer(title: gesture.russianName, isCorrect: true),
-                        QuizAnswer(title: "Помощь", isCorrect: false),
-                        QuizAnswer(title: "Да", isCorrect: false),
-                        QuizAnswer(title: "Учиться", isCorrect: false)
-                    ].shuffled(),
+                    answers: ([QuizAnswer(title: gesture.russianName, isCorrect: true)] + wrongTranslationAnswers).shuffled(),
                     hint: gesture.executionDescription
                 ),
                 QuizQuestion(
                     type: .chooseGesture,
                     prompt: "Какой жест вы только что тренировали?",
                     gesture: gesture.type,
-                    answers: [
-                        QuizAnswer(title: gesture.englishName, isCorrect: true),
-                        QuizAnswer(title: "Помощь", isCorrect: false),
-                        QuizAnswer(title: "Нет", isCorrect: false),
-                        QuizAnswer(title: "Учиться", isCorrect: false)
-                    ].shuffled(),
+                    answers: ([QuizAnswer(title: gesture.englishName, isCorrect: true)] + wrongGestureAnswers).shuffled(),
                     hint: "Вспомните жест со страницы практики."
                 )
             ]
@@ -247,7 +248,7 @@ final class LearningQuizSessionViewModel: ObservableObject {
                 prompt: "Какой набор относится к первому модулю?",
                 gesture: nil,
                 answers: [
-                    QuizAnswer(title: "Привет, спасибо, да, нет", isCorrect: true),
+                    QuizAnswer(title: "Да, нет, привет, спасибо", isCorrect: true),
                     QuizAnswer(title: "Помощь, плохо, учиться, пожалуйста", isCorrect: false),
                     QuizAnswer(title: "Хорошо, плохо, я люблю тебя, учиться", isCorrect: false),
                     QuizAnswer(title: "Пожалуйста, помощь, хорошо, плохо", isCorrect: false)

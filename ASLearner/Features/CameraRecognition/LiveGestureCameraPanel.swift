@@ -30,6 +30,11 @@ struct LiveGestureCameraPanel: View {
         VStack(spacing: 14) {
             cameraPreview
 
+            if didNotifyRecognized {
+                acceptedGestureMessage
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
             Button {
                 recognitionViewModel.toggleScanning()
             } label: {
@@ -50,6 +55,7 @@ struct LiveGestureCameraPanel: View {
             .opacity(recognitionViewModel.isPreparing ? 0.72 : 1)
             .animation(.spring(response: 0.34, dampingFraction: 0.82), value: recognitionViewModel.actionTitle)
         }
+        .animation(.spring(response: 0.36, dampingFraction: 0.84), value: didNotifyRecognized)
         .onAppear {
             recognitionViewModel.configure(service: appViewModel.container.gestureRecognitionService)
         }
@@ -114,6 +120,16 @@ struct LiveGestureCameraPanel: View {
             }
             .padding(14)
         }
+    }
+
+    private var acceptedGestureMessage: some View {
+        Label(Texts.LearningFlowPage.gestureAccepted, systemImage: "checkmark.seal.fill")
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundStyle(LiquidGlassTheme.success)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 14)
+            .glassEffect(.regular.tint(LiquidGlassTheme.success.opacity(0.16)), in: .rect(cornerRadius: 18))
     }
 
     private var statusTitle: String {

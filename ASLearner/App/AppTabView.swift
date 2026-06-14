@@ -3,7 +3,7 @@ import SwiftUI
 struct AppTabView: View {
     var body: some View {
         TabView {
-            Tab(Texts.Tabbar.path, systemImage: "graduationcap.fill") {
+            Tab(Texts.Tabbar.path, systemImage: "house.fill") {
                 NavigationStack {
                     LearningFlowView()
                 }

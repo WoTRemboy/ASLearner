@@ -3,28 +3,6 @@ import Foundation
 enum GestureRepository {
     static let gestures: [GestureModel] = [
         GestureModel(
-            id: GestureType.hello.id,
-            type: .hello,
-            englishName: "Привет",
-            russianName: "Привет",
-            executionDescription: "Откройте ладонь у лба и мягко отведите руку наружу небольшой дугой.",
-            difficulty: .beginner,
-            category: "База",
-            symbolName: "hand.wave.fill",
-            mediaPlaceholderName: nil
-        ),
-        GestureModel(
-            id: GestureType.thankYou.id,
-            type: .thankYou,
-            englishName: "Спасибо",
-            russianName: "Спасибо",
-            executionDescription: "Коснитесь подбородка кончиками пальцев и отведите руку вперёд ладонью вверх.",
-            difficulty: .beginner,
-            category: "База",
-            symbolName: "hands.clap.fill",
-            mediaPlaceholderName: nil
-        ),
-        GestureModel(
             id: GestureType.yes.id,
             type: .yes,
             englishName: "Да",
@@ -44,6 +22,28 @@ enum GestureRepository {
             difficulty: .beginner,
             category: "Ответы",
             symbolName: "xmark.circle.fill",
+            mediaPlaceholderName: nil
+        ),
+        GestureModel(
+            id: GestureType.hello.id,
+            type: .hello,
+            englishName: "Привет",
+            russianName: "Привет",
+            executionDescription: "Откройте ладонь у лба и мягко отведите руку наружу небольшой дугой.",
+            difficulty: .beginner,
+            category: "База",
+            symbolName: "hand.wave.fill",
+            mediaPlaceholderName: nil
+        ),
+        GestureModel(
+            id: GestureType.thankYou.id,
+            type: .thankYou,
+            englishName: "Спасибо",
+            russianName: "Спасибо",
+            executionDescription: "Коснитесь подбородка кончиками пальцев и отведите руку вперёд ладонью вверх.",
+            difficulty: .beginner,
+            category: "База",
+            symbolName: "hands.clap.fill",
             mediaPlaceholderName: nil
         ),
         GestureModel(
@@ -116,20 +116,20 @@ enum GestureRepository {
 
     static let lessons: [LessonModel] = [
         LessonModel(
+            id: "answers-core",
+            title: "Короткие ответы",
+            subtitle: "Да, нет, привет, спасибо",
+            gestureTypes: [.yes, .no, .hello, .thankYou],
+            estimatedMinutes: 7,
+            accentSymbolName: "checkmark.seal.fill"
+        ),
+        LessonModel(
             id: "basics-hello",
             title: "Первый контакт",
             subtitle: "Привет, спасибо, пожалуйста",
             gestureTypes: [.hello, .thankYou, .please],
             estimatedMinutes: 6,
             accentSymbolName: "sparkles"
-        ),
-        LessonModel(
-            id: "answers-core",
-            title: "Короткие ответы",
-            subtitle: "Да, нет, хорошо, плохо",
-            gestureTypes: [.yes, .no, .good, .bad],
-            estimatedMinutes: 8,
-            accentSymbolName: "checkmark.seal.fill"
         ),
         LessonModel(
             id: "support-learning",

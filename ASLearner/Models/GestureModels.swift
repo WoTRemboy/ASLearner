@@ -1,10 +1,10 @@
 import Foundation
 
 enum GestureType: String, CaseIterable, Identifiable, Hashable {
-    case hello
-    case thankYou
     case yes
     case no
+    case hello
+    case thankYou
     case please
     case help
     case good

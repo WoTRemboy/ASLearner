@@ -182,13 +182,6 @@ struct LearningGesturePracticeView: View {
                     .lineSpacing(4)
                     .foregroundStyle(LiquidGlassTheme.mutedForeground)
                     .fixedSize(horizontal: false, vertical: true)
-
-                if didRecognizeGesture {
-                    Label(Texts.LearningFlowPage.gestureAccepted, systemImage: "checkmark.seal.fill")
-                        .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(LiquidGlassTheme.success)
-                    .transition(.blurReplace)
-                }
             }
         }
     }
