@@ -266,7 +266,7 @@ private struct LearningQuizPracticePage: View {
             }
 
             VStack(alignment: .leading, spacing: 10) {
-                Text("Попробуйте «\(gesture.englishName)»")
+                Text("Выполните «\(gesture.englishName)»")
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(LiquidGlassTheme.foreground)
 

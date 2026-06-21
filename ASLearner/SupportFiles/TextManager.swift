@@ -160,6 +160,14 @@ final class Texts {
         static let howToPerform = "Как выполнить"
         static let practiceGesture = "Тренировать жест"
         static let closePractice = "Закрыть тренировку"
+
+        static func rowSubtitle(name: String, category: String) -> String {
+            "\(name) • \(category)"
+        }
+
+        static func practiceTitle(_ gestureName: String) -> String {
+            "Тренировка «\(gestureName)»"
+        }
     }
 
     enum AchievementsPage {
@@ -174,6 +182,14 @@ final class Texts {
         static let recognitionCoverageSuffix = "жестов принято системой распознавания."
         static let quizHistory = "История тестов"
         static let emptyQuizHistory = "Попыток тестов пока нет."
+
+        static func recognitionSummary(recognized: Int, total: Int) -> String {
+            "\(recognized) из \(total): \(recognitionCoverageSuffix)"
+        }
+
+        static func quizScore(correct: Int, total: Int) -> String {
+            "\(correct)/\(total)"
+        }
     }
 
     enum ProfilePage {
@@ -184,6 +200,22 @@ final class Texts {
         static let achievements = "Достижения"
         static let latestAchievements = "Новые достижения"
         static let viewAchievements = "Все достижения"
+
+        static func levelTitle(_ level: Int) -> String {
+            "\(HomePage.progressLevel) \(level)"
+        }
+
+        static func inlineXP(_ xp: Int) -> String {
+            " • \(xp) \(HomePage.xp)"
+        }
+
+        static func progressPercent(_ value: Double) -> String {
+            "\(Int(value * 100))%"
+        }
+
+        static func nextLevelXP(_ xp: Int) -> String {
+            "\(HomePage.nextLevel) \(xp) \(HomePage.xp)"
+        }
     }
 
     enum SettingsPage {

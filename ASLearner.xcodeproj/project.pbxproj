@@ -9,12 +9,27 @@
 /* Begin PBXBuildFile section */
 		44823E858371946ECBE7C6BC /* Pods_ASLearner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4A7BDF02AE1B6056DEFCED5 /* Pods_ASLearner.framework */; };
 		637818202FDC2F5500533CA5 /* SwiftUIPager in Frameworks */ = {isa = PBXBuildFile; productRef = 6378181F2FDC2F5500533CA5 /* SwiftUIPager */; };
-		63781A702FDEB12800533CA5 /* llama.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63781A6F2FDEB12800533CA5 /* llama.xcframework */; };
+		639863332FE1CEF8006A58C0 /* llama.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 639863312FE1CE74006A58C0 /* llama.xcframework */; };
+		639863342FE1CEF8006A58C0 /* llama.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 639863312FE1CE74006A58C0 /* llama.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		639863352FE1CEF8006A58C0 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				639863342FE1CEF8006A58C0 /* llama.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		63483F4E2EF1A43A00E7CEDD /* ASLearner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ASLearner.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		63781A6F2FDEB12800533CA5 /* llama.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = llama.xcframework; sourceTree = "<group>"; };
+		639863312FE1CE74006A58C0 /* llama.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = llama.xcframework; sourceTree = "<group>"; };
 		7484D4A14935796176558371 /* Pods-ASLearner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ASLearner.release.xcconfig"; path = "Target Support Files/Pods-ASLearner/Pods-ASLearner.release.xcconfig"; sourceTree = "<group>"; };
 		787B6C4CFB75210419325BFC /* Pods-ASLearner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ASLearner.debug.xcconfig"; path = "Target Support Files/Pods-ASLearner/Pods-ASLearner.debug.xcconfig"; sourceTree = "<group>"; };
 		A4A7BDF02AE1B6056DEFCED5 /* Pods_ASLearner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ASLearner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -35,7 +50,7 @@
 			files = (
 				637818202FDC2F5500533CA5 /* SwiftUIPager in Frameworks */,
 				44823E858371946ECBE7C6BC /* Pods_ASLearner.framework in Frameworks */,
-				63781A702FDEB12800533CA5 /* llama.xcframework in Frameworks */,
+				639863332FE1CEF8006A58C0 /* llama.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,7 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				A4A7BDF02AE1B6056DEFCED5 /* Pods_ASLearner.framework */,
-				63781A6F2FDEB12800533CA5 /* llama.xcframework */,
+				639863312FE1CE74006A58C0 /* llama.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -89,6 +104,7 @@
 				63483F4A2EF1A43A00E7CEDD /* Sources */,
 				63483F4B2EF1A43A00E7CEDD /* Frameworks */,
 				63483F4C2EF1A43A00E7CEDD /* Resources */,
+				639863352FE1CEF8006A58C0 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

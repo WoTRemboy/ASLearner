@@ -34,22 +34,22 @@ struct ProfileView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(alignment: .firstTextBaseline, spacing: 0) {
-                            Text("\(Texts.HomePage.progressLevel) \(appViewModel.progress.level)")
+                            Text(Texts.ProfilePage.levelTitle(appViewModel.progress.level))
                                 .foregroundStyle(LiquidGlassTheme.foreground)
-                            Text(" • \(appViewModel.progress.xp) \(Texts.HomePage.xp)")
+                            Text(Texts.ProfilePage.inlineXP(appViewModel.progress.xp))
                                 .foregroundStyle(LiquidGlassTheme.mutedForeground)
                         }
                         .font(Font.title())
                     }
                     Spacer()
-                    Text("\(Int(appViewModel.progress.levelProgress * 100))%")
+                    Text(Texts.ProfilePage.progressPercent(appViewModel.progress.levelProgress))
                         .font(Font.largeTitle3(.bold))
                         .foregroundStyle(LiquidGlassTheme.accent)
                 }
 
                 LiquidGlassProgressView(value: appViewModel.progress.levelProgress)
 
-                Text("\(Texts.HomePage.nextLevel) \(appViewModel.progress.nextLevelXP) \(Texts.HomePage.xp)")
+                Text(Texts.ProfilePage.nextLevelXP(appViewModel.progress.nextLevelXP))
                     .font(Font.caption())
                     .foregroundStyle(LiquidGlassTheme.mutedForeground)
             }
@@ -85,7 +85,7 @@ struct ProfileView: View {
                     )
 
                     LazyVGrid(columns: recognitionGalleryColumns, spacing: 12) {
-                        ForEach(Array(appViewModel.gestures.enumerated()), id: \.element.id) { index, gesture in
+                        ForEach(Array(recognitionPreviewGestures.enumerated()), id: \.element.id) { index, gesture in
                             GestureGalleryIcon(
                                 gesture: gesture,
                                 isUnlocked: appViewModel.progress.recognizedGestures.contains(gesture.type),
@@ -146,6 +146,10 @@ struct ProfileView: View {
 
     private var recognitionGalleryColumns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: 8), count: 5)
+    }
+
+    private var recognitionPreviewGestures: [GestureModel] {
+        Array(appViewModel.gestures.prefix(5))
     }
 }
 
