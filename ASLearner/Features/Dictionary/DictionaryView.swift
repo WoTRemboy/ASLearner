@@ -89,7 +89,7 @@ struct DictionaryView: View {
                     Text(gesture.englishName)
                         .font(.headline)
                         .foregroundStyle(LiquidGlassTheme.foreground)
-                    Text("\(gesture.russianName) • \(gesture.category)")
+                    Text(Texts.DictionaryPage.rowSubtitle(name: gesture.russianName, category: gesture.category))
                         .font(.caption)
                         .foregroundStyle(LiquidGlassTheme.mutedForeground)
                 }
@@ -199,7 +199,7 @@ private struct DictionaryGesturePracticeSheet: View {
                         }
 
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Тренировка «\(gesture.englishName)»")
+                            Text(Texts.DictionaryPage.practiceTitle(gesture.englishName))
                                 .font(.system(size: 34, weight: .bold, design: .rounded))
                                 .foregroundStyle(LiquidGlassTheme.foreground)
 

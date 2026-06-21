@@ -1,68 +1,70 @@
 import Foundation
 
 struct MockQuizGenerationService: QuizGenerationServiceProtocol {
-    func generateQuiz(topic: String, gestures: [GestureModel]) async -> [QuizQuestion] {
+    func generateQuiz(topic: String, gestures: [GestureModel], context: QuizGenerationContext) async -> [QuizQuestion] {
         try? await Task.sleep(nanoseconds: 350_000_000)
 
-        let selectedGestures = Array(gestures.prefix(5))
+        let selectedGestures = Array((context.learnedGestures.isEmpty ? gestures : context.learnedGestures).prefix(5))
+        guard !selectedGestures.isEmpty else { return [] }
 
-        return selectedGestures.enumerated().map { index, gesture in
-            switch index % 3 {
-            case 0:
-                return translationQuestion(for: gesture, allGestures: gestures)
-            case 1:
-                return gestureChoiceQuestion(for: gesture, allGestures: gestures)
-            default:
-                return performQuestion(for: gesture)
-            }
+        let targetQuestionCount = max(3, selectedGestures.count)
+        return (0..<targetQuestionCount).map { index in
+            let gesture = selectedGestures[index % selectedGestures.count]
+            return index.isMultiple(of: 2) ? executionQuestion(for: gesture) : usageQuestion(for: gesture)
         }
     }
 
-    private func translationQuestion(for gesture: GestureModel, allGestures: [GestureModel]) -> QuizQuestion {
-        let wrongAnswers = allGestures
-            .filter { $0.id != gesture.id }
-            .shuffled()
-            .prefix(3)
-            .map { QuizAnswer(title: $0.russianName, isCorrect: false) }
-
-        let answers = ([QuizAnswer(title: gesture.russianName, isCorrect: true)] + wrongAnswers).shuffled()
-
-        return QuizQuestion(
-            type: .chooseTranslation,
-            prompt: "Выберите значение жеста «\(gesture.englishName)».",
-            gesture: gesture.type,
-            answers: answers,
-            hint: "Вспомните ситуацию, где обычно используется этот жест."
-        )
-    }
-
-    private func gestureChoiceQuestion(for gesture: GestureModel, allGestures: [GestureModel]) -> QuizQuestion {
-        let wrongAnswers = allGestures
-            .filter { $0.id != gesture.id }
-            .shuffled()
-            .prefix(3)
-            .map { QuizAnswer(title: $0.englishName, isCorrect: false) }
-
-        let answers = ([QuizAnswer(title: gesture.englishName, isCorrect: true)] + wrongAnswers).shuffled()
-
-        return QuizQuestion(
-            type: .chooseGesture,
-            prompt: "Какой жест соответствует «\(gesture.russianName)»?",
-            gesture: gesture.type,
-            answers: answers,
-            hint: gesture.executionDescription
-        )
-    }
-
-    private func performQuestion(for gesture: GestureModel) -> QuizQuestion {
+    private func executionQuestion(for gesture: GestureModel) -> QuizQuestion {
         QuizQuestion(
-            type: .performGesture,
-            prompt: "Покажите жест «\(gesture.englishName)» перед камерой.",
+            type: .chooseGesture,
+            prompt: "Как лучше выполнить жест «\(gesture.russianName)»?",
             gesture: gesture.type,
-            answers: [
-                QuizAnswer(title: "Готово", isCorrect: true)
-            ],
-            hint: gesture.executionDescription
+            answers: semanticAnswers(
+                correct: gesture.executionDescription,
+                wrong: [
+                    "Спрятать руку за корпусом и выполнить движение вне кадра.",
+                    "Сделать резкий случайный взмах без фиксированной формы ладони.",
+                    "Закрыть ладонь второй рукой во время движения."
+                ]
+            ),
+            hint: "Обратите внимание на форму ладони и направление движения.",
+            knowledgeArea: .gestureExecution
         )
+    }
+
+    private func usageQuestion(for gesture: GestureModel) -> QuizQuestion {
+        QuizQuestion(
+            type: .chooseTranslation,
+            prompt: "Когда уместно использовать жест «\(gesture.russianName)»?",
+            gesture: gesture.type,
+            answers: semanticAnswers(
+                correct: usageAnswer(for: gesture),
+                wrong: GestureRepository.gestures
+                    .filter { $0.type != gesture.type }
+                    .prefix(3)
+                    .map(usageAnswer(for:))
+            ),
+            hint: "Вспомните не название, а коммуникативную задачу жеста.",
+            knowledgeArea: .gestureMeaning
+        )
+    }
+
+    private func semanticAnswers(correct: String, wrong: [String]) -> [QuizAnswer] {
+        ([QuizAnswer(title: correct, isCorrect: true)] + wrong.prefix(3).map { QuizAnswer(title: $0, isCorrect: false) }).shuffled()
+    }
+
+    private func usageAnswer(for gesture: GestureModel) -> String {
+        switch gesture.type {
+        case .yes:
+            "Чтобы подтвердить согласие или ответить утвердительно."
+        case .no:
+            "Чтобы вежливо показать отрицательный ответ или отказ."
+        case .hello:
+            "Чтобы начать общение и поприветствовать собеседника."
+        case .thankYou:
+            "Чтобы выразить благодарность после помощи или ответа."
+        default:
+            "Чтобы передать значение «\(gesture.russianName)» в коротком сообщении."
+        }
     }
 }

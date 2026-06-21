@@ -1,6 +1,6 @@
 import Foundation
 
-enum GestureType: String, CaseIterable, Identifiable, Hashable {
+enum GestureType: String, CaseIterable, Identifiable, Hashable, Codable {
     case yes
     case no
     case hello

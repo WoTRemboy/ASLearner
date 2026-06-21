@@ -126,7 +126,7 @@ struct LearningGesturePracticeView: View {
                     LearningTaskReferencePage(
                         node: node,
                         symbolName: gesture.symbolName,
-                        title: "Подготовьте жест «\(gesture.englishName)»",
+                        title: "Схема жеста «\(gesture.englishName)»",
                         text: gesture.executionDescription,
                         notes: [
                             gesture.russianName,

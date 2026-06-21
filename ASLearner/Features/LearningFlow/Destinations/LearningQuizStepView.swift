@@ -7,6 +7,7 @@ private enum QuizCameraStopAction {
 
 struct LearningQuizStepView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var appViewModel: AppViewModel
     @StateObject private var viewModel: LearningQuizSessionViewModel
     @State private var cameraStopRequest = 0
     @State private var pendingCameraStopAction: QuizCameraStopAction?
@@ -30,12 +31,16 @@ struct LearningQuizStepView: View {
             animatedPageContent
         }
         .safeAreaInset(edge: .top) {
-            LearningTaskProgressBar(progress: viewModel.progress)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
+            if !viewModel.isGeneratingQuestions {
+                LearningTaskProgressBar(progress: viewModel.progress)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+            }
         }
         .safeAreaInset(edge: .bottom) {
-            if streakUpdate != nil {
+            if viewModel.isGeneratingQuestions {
+                EmptyView()
+            } else if streakUpdate != nil {
                 LearningTaskResultButton(
                     title: Texts.LearningFlowPage.continueButton,
                     isEnabled: canContinueAfterStreak
@@ -68,14 +73,23 @@ struct LearningQuizStepView: View {
                 }
             }
 
-            ToolbarItem {
-                LearningQuizScoreView(score: viewModel.quizScore)
+            if !viewModel.isGeneratingQuestions {
+                ToolbarItem {
+                    LearningQuizScoreView(score: viewModel.quizScore)
+                }
             }
         }
         .navigationTitle(node.title)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            viewModel.startTimer()
+            Task {
+                await viewModel.generateQuestions(
+                    service: appViewModel.container.quizGenerationService,
+                    gestures: appViewModel.gestures,
+                    context: appViewModel.quizGenerationContext
+                )
+                viewModel.startTimer()
+            }
         }
         .onDisappear {
             viewModel.stopTimer()
@@ -89,17 +103,28 @@ struct LearningQuizStepView: View {
     @ViewBuilder
     private var animatedPageContent: some View {
         ZStack {
-            ForEach([viewModel.currentPage], id: \.id) { page in
-                pageContent(for: page)
-                    .transition(
-                        .asymmetric(
-                            insertion: .move(edge: .trailing).combined(with: .opacity),
-                            removal: .move(edge: .leading).combined(with: .opacity)
+            if viewModel.isGeneratingQuestions {
+                QuizGenerationProgressView(
+                    progress: viewModel.generationProgress,
+                    currentStep: viewModel.currentGenerationStep,
+                    steps: QuizGenerationProgressView.defaultSteps
+                )
+                .padding(.horizontal, 20)
+                .transition(.blurReplace.combined(with: .opacity))
+            } else {
+                ForEach([viewModel.currentPage], id: \.id) { page in
+                    pageContent(for: page)
+                        .transition(
+                            .asymmetric(
+                                insertion: .move(edge: .trailing).combined(with: .opacity),
+                                removal: .move(edge: .leading).combined(with: .opacity)
+                            )
                         )
-                    )
+                }
             }
         }
         .animation(.spring(response: 0.42, dampingFraction: 0.86), value: viewModel.currentPage.id)
+        .animation(.spring(response: 0.42, dampingFraction: 0.86), value: viewModel.isGeneratingQuestions)
     }
 
     @ViewBuilder
@@ -180,6 +205,7 @@ struct LearningQuizStepView: View {
         }
 
         didApplyCompletion = true
+        appViewModel.recordQuizAttempt(questions: viewModel.questions, selectedAnswers: viewModel.selectedAnswers)
 
         if let update = onComplete() {
             canContinueAfterStreak = false
@@ -240,7 +266,7 @@ private struct LearningQuizPracticePage: View {
             }
 
             VStack(alignment: .leading, spacing: 10) {
-                Text("Попробуйте «\(gesture.englishName)»")
+                Text("Выполните «\(gesture.englishName)»")
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(LiquidGlassTheme.foreground)
 
@@ -296,10 +322,6 @@ private struct LearningQuizQuestionTitle: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
 
-            if let gesture = question.gesture, Image.GestureScheme.assetName(for: gesture) != nil {
-                GestureSchemeImageView(gesture: gesture, widthRatio: 0.62, maxSide: 280)
-                    .padding(.top, 2)
-            }
         }
     }
 }

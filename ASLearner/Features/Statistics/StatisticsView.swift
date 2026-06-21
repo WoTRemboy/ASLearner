@@ -56,7 +56,10 @@ struct StatisticsView: View {
 
                 LiquidGlassProgressView(value: Double(appViewModel.progress.recognizedGestures.count) / Double(max(appViewModel.gestures.count, 1)))
 
-                Text("\(appViewModel.progress.recognizedGestures.count) из \(appViewModel.gestures.count): \(Texts.StatisticsPage.recognitionCoverageSuffix)")
+                Text(Texts.StatisticsPage.recognitionSummary(
+                    recognized: appViewModel.progress.recognizedGestures.count,
+                    total: appViewModel.gestures.count
+                ))
                     .font(.subheadline)
                     .foregroundStyle(LiquidGlassTheme.mutedForeground)
                     .fixedSize(horizontal: false, vertical: true)
@@ -87,7 +90,7 @@ struct StatisticsView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(LiquidGlassTheme.foreground)
                             Spacer()
-                            Text("\(score.correctAnswers)/\(score.totalQuestions)")
+                            Text(Texts.StatisticsPage.quizScore(correct: score.correctAnswers, total: score.totalQuestions))
                                 .font(.subheadline.bold())
                                 .foregroundStyle(LiquidGlassTheme.accent)
                         }
